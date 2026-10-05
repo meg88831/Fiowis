@@ -1,0 +1,26 @@
+canvas {
+    touch-action: none;
+    user-select: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+@keyframes pulse-flame {
+    0%, 100% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.15); 
+    }
+}
+
+.animate-flame {
+    animation: pulse-flame 2s infinite ease-in-out;
+}

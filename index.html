@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fiowis - Virtuele Passer & Wiskunde App</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Three.js for 3D Spatial Shapes -->
+    <!-- Three.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -30,26 +35,6 @@
             }
         }
     </script>
-    <style>
-        canvas {
-            touch-action: none;
-            user-select: none;
-        }
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        @keyframes pulse-flame {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-        }
-        .animate-flame {
-            animation: pulse-flame 2s infinite ease-in-out;
-        }
-    </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 h-full flex flex-col font-sans transition-colors duration-200">
 
@@ -67,20 +52,18 @@
 
             <!-- Top Header Controls (Streak & Theme) -->
             <div class="flex items-center space-x-3">
-                <!-- Streak Badge -->
                 <div id="streakHeaderBadge" onclick="switchTab('pomodoro')" class="flex items-center space-x-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3 py-1.5 rounded-full text-xs font-semibold text-amber-700 dark:text-amber-400 cursor-pointer hover:bg-amber-100 transition shadow-sm" title="Bekijk je Studie Streak">
                     <i class="fa-solid fa-fire text-amber-500 animate-flame text-sm"></i>
                     <span id="streakCountText">2 Dagen Streak! 🔥</span>
                 </div>
 
-                <!-- Dark Mode Toggle -->
                 <button id="themeToggleBtn" onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition" title="Wissel Thema">
                     <i id="themeIcon" class="fa-solid fa-moon text-base"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Scrollable Tab Navigation -->
+        <!-- Navigation Tabs -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-100 dark:border-slate-700/50 flex space-x-1 sm:space-x-2 overflow-x-auto no-scrollbar text-xs sm:text-sm font-medium">
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn px-3 py-3 border-b-2 border-sky-600 text-sky-600 dark:text-sky-400 font-semibold flex items-center space-x-2 whitespace-nowrap">
                 <i class="fa-solid fa-house"></i> <span>Home</span>
@@ -111,6 +94,7 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-6">
 
+        <!-- Modal -->
         <div id="customModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700 text-center">
                 <div id="modalIcon" class="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto mb-4 text-xl">
@@ -124,8 +108,8 @@
             </div>
         </div>
 
+        <!-- Panel Home -->
         <section id="panel-home" class="flex-1 flex flex-col space-y-6">
-            <!-- Hero Banner -->
             <div class="bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
                 <div class="relative z-10 max-w-2xl space-y-3">
                     <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide uppercase">
@@ -149,7 +133,6 @@
                 </div>
             </div>
 
-            <!-- Features Quick Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div onclick="switchTab('passer')" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-sky-500 cursor-pointer transition space-y-2 group">
                     <div class="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
@@ -185,10 +168,9 @@
             </div>
         </section>
 
+        <!-- Panel Passer -->
         <section id="panel-passer" class="hidden flex-1 flex-col lg:flex-row gap-6">
-            <!-- Canvas Container -->
             <div class="flex-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative min-h-[480px]">
-                <!-- Action Bar -->
                 <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
                     <div class="flex items-center space-x-2">
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-semibold">
@@ -208,13 +190,11 @@
                     </div>
                 </div>
 
-                <!-- Canvas Display -->
                 <div class="flex-1 relative w-full h-full bg-slate-50/50 dark:bg-slate-900/50" id="canvasContainer">
                     <canvas id="compassCanvas" class="w-full h-full absolute inset-0 cursor-crosshair"></canvas>
                 </div>
             </div>
 
-            <!-- Controls Panel -->
             <div class="w-full lg:w-80 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-5 flex flex-col justify-between">
                 <div class="space-y-4">
                     <h2 class="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2 border-b border-slate-100 dark:border-slate-700 pb-3">
@@ -222,13 +202,11 @@
                         <span>Passer Instellingen</span>
                     </h2>
 
-                    <!-- Needle Coords Live Box -->
                     <div class="bg-sky-50 dark:bg-sky-950/40 rounded-xl p-3 border border-sky-100 dark:border-sky-900 text-xs flex items-center justify-between">
                         <span class="text-sky-800 dark:text-sky-300 font-semibold">Coördinaten Passer (x, y):</span>
                         <span id="needleCoordDisplay" class="font-mono font-bold text-sky-600 dark:text-sky-400 text-sm">(0, 0)</span>
                     </div>
 
-                    <!-- Radius Slider -->
                     <div>
                         <div class="flex justify-between text-sm mb-1 font-medium">
                             <label class="text-slate-700 dark:text-slate-300">Straal (r):</label>
@@ -237,7 +215,6 @@
                         <input type="range" id="compassRadius" min="20" max="300" value="120" oninput="updateCompassRadius(this.value)" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-600">
                     </div>
 
-                    <!-- Color Picker -->
                     <div>
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Potlood Kleur:</label>
                         <div class="flex space-x-2">
@@ -250,7 +227,6 @@
                         </div>
                     </div>
 
-                    <!-- Stroke Thickness -->
                     <div>
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Lijndikte:</label>
                         <select id="compassThickness" onchange="updateThickness(this.value)" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
@@ -261,7 +237,6 @@
                         </select>
                     </div>
 
-                    <!-- Live Calculations -->
                     <div class="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-4 border border-slate-100 dark:border-slate-700/60 space-y-2 text-xs">
                         <div class="font-semibold text-slate-700 dark:text-slate-300 mb-1">Cirkel Berekeningen:</div>
                         <div class="flex justify-between">
@@ -281,6 +256,7 @@
             </div>
         </section>
 
+        <!-- Panel 3D Shapes -->
         <section id="panel-3dshapes" class="hidden flex-1 flex-col lg:flex-row gap-6">
             <div class="flex-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative min-h-[480px]">
                 <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs">
@@ -292,11 +268,9 @@
                         <button onclick="reset3DCamera()" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-medium hover:bg-indigo-700">Reset View</button>
                     </div>
                 </div>
-                <!-- Three.js Canvas Container -->
                 <div id="threeContainer" class="flex-1 w-full h-full relative bg-slate-900 cursor-grab active:cursor-grabbing"></div>
             </div>
 
-            <!-- 3D Controls -->
             <div class="w-full lg:w-80 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
                 <h2 class="font-bold text-base text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-700 pb-3">
                     3D Figuur Selectie
@@ -313,7 +287,6 @@
                     </select>
                 </div>
 
-                <!-- Dimension Sliders -->
                 <div class="space-y-3 pt-2">
                     <div>
                         <div class="flex justify-between text-xs font-medium mb-1">
@@ -331,7 +304,6 @@
                     </div>
                 </div>
 
-                <!-- Calculated Stats -->
                 <div class="bg-indigo-50 dark:bg-indigo-950/40 rounded-xl p-4 border border-indigo-100 dark:border-indigo-900 space-y-2 text-xs">
                     <div class="font-semibold text-indigo-900 dark:text-indigo-300 mb-1">3D Eigenschappen:</div>
                     <div class="flex justify-between">
@@ -346,6 +318,7 @@
             </div>
         </section>
 
+        <!-- Panel Liniaal -->
         <section id="panel-liniaal" class="hidden flex-1 flex-col lg:flex-row gap-6">
             <div class="flex-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative min-h-[480px]">
                 <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs">
@@ -382,6 +355,7 @@
             </div>
         </section>
 
+        <!-- Panel Grafiek -->
         <section id="panel-grafiek" class="hidden flex-1 flex-col lg:flex-row gap-6">
             <div class="flex-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative min-h-[480px]">
                 <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs">
@@ -418,6 +392,7 @@
             </div>
         </section>
 
+        <!-- Panel Formules -->
         <section id="panel-vormen" class="hidden flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Cirkel -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-3">
@@ -425,971 +400,62 @@
                     <i class="fa-regular fa-circle text-xl"></i>
                     <span>Cirkel</span>
                 </div>
-                <div class="space-y-2 text-xs">
-                    <label class="block text-slate-600 dark:text-slate-400">Straal (r):</label>
-                    <input type="number" id="calcCircleR" value="5" oninput="calculateCircleStats()" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-2 text-sm">
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg space-y-1 font-mono">
-                        <div>Omtrek: <span id="outCircleP" class="font-bold text-sky-600">31.42</span></div>
-                        <div>Oppervlakte: <span id="outCircleA" class="font-bold text-sky-600">78.54</span></div>
-                    </div>
+                <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                    <p><strong class="text-slate-800 dark:text-white">Omtrek:</strong> $2 \cdot \pi \cdot r$</p>
+                    <p><strong class="text-slate-800 dark:text-white">Oppervlakte:</strong> $\pi \cdot r^2$</p>
                 </div>
             </div>
 
             <!-- Driehoek -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-3">
-                <div class="flex items-center space-x-3 text-indigo-600 dark:text-indigo-400 font-bold text-base">
+                <div class="flex items-center space-x-3 text-emerald-600 dark:text-emerald-400 font-bold text-base">
                     <i class="fa-solid fa-play -rotate-90 text-xl"></i>
                     <span>Driehoek</span>
                 </div>
-                <div class="space-y-2 text-xs">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-slate-600 dark:text-slate-400">Basis (b):</label>
-                            <input type="number" id="calcTriB" value="6" oninput="calculateTriStats()" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-2 text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-slate-600 dark:text-slate-400">Hoogte (h):</label>
-                            <input type="number" id="calcTriH" value="4" oninput="calculateTriStats()" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-2 text-sm">
-                        </div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg space-y-1 font-mono">
-                        <div>Oppervlakte (½·b·h): <span id="outTriA" class="font-bold text-indigo-600">12.00</span></div>
-                    </div>
+                <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                    <p><strong class="text-slate-800 dark:text-white">Oppervlakte:</strong> $\frac{1}{2} \cdot \text{basis} \cdot \text{hoogte}$</p>
+                    <p><strong class="text-slate-800 dark:text-white">Pythagoras:</strong> $a^2 + b^2 = c^2$</p>
                 </div>
             </div>
 
-            <!-- Cilinder -->
+            <!-- Balk / Kubus -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-3">
-                <div class="flex items-center space-x-3 text-emerald-600 dark:text-emerald-400 font-bold text-base">
-                    <i class="fa-solid fa-database text-xl"></i>
-                    <span>Cilinder (3D)</span>
+                <div class="flex items-center space-x-3 text-indigo-600 dark:text-indigo-400 font-bold text-base">
+                    <i class="fa-solid fa-cube text-xl"></i>
+                    <span>Balk & Kubus</span>
                 </div>
-                <div class="space-y-2 text-xs">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-slate-600 dark:text-slate-400">Straal (r):</label>
-                            <input type="number" id="calcCylR" value="3" oninput="calculateCylStats()" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-2 text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-slate-600 dark:text-slate-400">Hoogte (h):</label>
-                            <input type="number" id="calcCylH" value="10" oninput="calculateCylStats()" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-2 text-sm">
-                        </div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg space-y-1 font-mono">
-                        <div>Inhoud (π·r²·h): <span id="outCylV" class="font-bold text-emerald-600">282.74</span></div>
-                    </div>
+                <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                    <p><strong class="text-slate-800 dark:text-white">Inhoud Balk:</strong> $l \cdot b \cdot h$</p>
+                    <p><strong class="text-slate-800 dark:text-white">Inhoud Kubus:</strong> $z^3$</p>
                 </div>
             </div>
         </section>
 
-        <section id="panel-game" class="hidden flex-1 flex-col space-y-6">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm space-y-6">
-                <!-- Game Header Bar -->
-                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700 pb-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-gamepad text-emerald-500"></i>
-                            <span>Fiowis Math Practice Challenge</span>
-                        </h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Beantwoord de wiskunde vragen snel en verdien een hoge score!</p>
-                    </div>
-
-                    <div class="flex items-center space-x-6 text-sm font-semibold">
-                        <div>
-                            <span class="text-xs text-slate-400 block">Score</span>
-                            <span id="gameScore" class="font-mono text-emerald-600 text-lg">0</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block">Tijd Over</span>
-                            <span id="gameTimer" class="font-mono text-amber-500 text-lg">15s</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Game Active Question Box -->
-                <div id="gamePlayArea" class="max-w-xl mx-auto text-center space-y-6 py-4">
-                    <div class="text-xs font-semibold px-3 py-1 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 rounded-full inline-block" id="gameCategoryBadge">
-                        Geometrie & Rekenen
-                    </div>
-
-                    <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white" id="gameQuestionText">
-                        Druk op Start om het Spel te Beginnen!
-                    </div>
-
-                    <!-- Option Buttons -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" id="gameOptionsGrid">
-                        <!-- Options generated dynamically -->
-                    </div>
-
-                    <button id="startGameBtn" onclick="startMathGame()" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition">
-                        Start Oefenspel
-                    </button>
-                </div>
+        <!-- Panel Game -->
+        <section id="panel-game" class="hidden flex-1 flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 text-center space-y-4">
+            <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-gamepad"></i>
             </div>
+            <h2 class="text-xl font-bold">Wiskunde Oefenspel</h2>
+            <p class="text-xs text-slate-500 max-w-md">Test je kennis van formules, omtrek en oppervlakte onder tijdsdruk!</p>
+            <button onclick="showModal('Spel Modus', 'Het oefenspel wordt gestart! Bereid je voor.')" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-md">
+                Start Spel
+            </button>
         </section>
 
-        <section id="panel-pomodoro" class="hidden flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            <!-- Pomodoro Timer Box -->
-            <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col justify-between items-center text-center">
-                <div class="w-full flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4 mb-4">
-                    <h2 class="font-bold text-lg text-slate-900 dark:text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-stopwatch text-amber-500"></i>
-                        <span>Wiskunde Pomodoro Studietimer</span>
-                    </h2>
-                    <span id="pomoModeLabel" class="text-xs px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-semibold">Focus Sessie</span>
-                </div>
-
-                <!-- Timer Circle Display -->
-                <div class="relative my-6 flex items-center justify-center">
-                    <svg class="w-64 h-64 transform -rotate-90">
-                        <circle cx="128" cy="128" r="110" stroke="currentColor" stroke-width="12" class="text-slate-100 dark:text-slate-700" fill="transparent"/>
-                        <circle id="pomoProgressRing" cx="128" cy="128" r="110" stroke="currentColor" stroke-width="12" class="text-amber-500 transition-all duration-300" fill="transparent" stroke-dasharray="691" stroke-dashoffset="0" stroke-linecap="round"/>
-                    </svg>
-                    <div class="absolute flex flex-col items-center">
-                        <span id="pomoTimeDisplay" class="text-5xl font-mono font-extrabold text-slate-900 dark:text-white tracking-tight">25:00</span>
-                        <span id="pomoSubText" class="text-xs text-slate-500 dark:text-slate-400 mt-2">Blijf gefocust op je wiskunde!</span>
-                    </div>
-                </div>
-
-                <!-- Timer Controls -->
-                <div class="flex items-center space-x-4 mb-2">
-                    <button id="pomoStartBtn" onclick="togglePomodoro()" class="px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-lg shadow-amber-500/20 transition flex items-center space-x-2">
-                        <i id="pomoPlayIcon" class="fa-solid fa-play"></i>
-                        <span id="pomoStartText">Start Focus</span>
-                    </button>
-                    <button onclick="resetPomodoro()" class="p-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl transition" title="Reset Timer">
-                        <i class="fa-solid fa-rotate-left"></i>
-                    </button>
-                </div>
-
-                <div class="flex space-x-2 text-xs font-medium text-slate-500 mt-2">
-                    <button onclick="setPomoMode('focus')" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600">25m Focus</button>
-                    <button onclick="setPomoMode('shortBreak')" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600">5m Korte Pauze</button>
-                    <button onclick="setPomoMode('longBreak')" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600">15m Lange Pauze</button>
-                </div>
+        <!-- Panel Pomodoro -->
+        <section id="panel-pomodoro" class="hidden flex-1 flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 text-center space-y-4">
+            <div class="w-16 h-16 bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-stopwatch"></i>
             </div>
-
-            <!-- Streak Tracker Box -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col justify-between space-y-6">
-                <div>
-                    <h2 class="font-bold text-lg text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-700 pb-3 mb-4 flex items-center space-x-2">
-                        <i class="fa-solid fa-fire text-amber-500"></i>
-                        <span>2-Dagen Studie Streak</span>
-                    </h2>
-
-                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-5 text-center space-y-2">
-                        <div class="w-14 h-14 bg-amber-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl shadow-md animate-flame">
-                            <i class="fa-solid fa-fire"></i>
-                        </div>
-                        <div id="streakTitleDisplay" class="text-2xl font-black text-amber-800 dark:text-amber-300">2 Dagen Streak! 🔥</div>
-                        <p class="text-xs text-amber-700 dark:text-amber-400">
-                            Geweldig gewerkt! Je bent al 2 opeenvolgende dagen actief bezig met wiskunde.
-                        </p>
-                    </div>
-
-                    <div class="mt-4 space-y-2">
-                        <div class="text-xs font-semibold text-slate-600 dark:text-slate-400">Streak Voortgang:</div>
-                        
-                        <div class="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs">
-                            <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-circle-check text-emerald-600 dark:text-emerald-400 text-base"></i>
-                                <span class="font-bold text-emerald-900 dark:text-emerald-200">Gisteren (Dag 1):</span>
-                            </div>
-                            <span class="text-emerald-700 dark:text-emerald-300 font-medium">Voltooid ✓</span>
-                        </div>
-
-                        <div id="todayStreakCard" class="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs">
-                            <div class="flex items-center space-x-2">
-                                <i id="todayCheckIcon" class="fa-solid fa-circle-check text-emerald-600 dark:text-emerald-400 text-base"></i>
-                                <span class="font-bold text-emerald-900 dark:text-emerald-200">Vandaag (Dag 2):</span>
-                            </div>
-                            <span id="todayStatusText" class="text-emerald-700 dark:text-emerald-300 font-medium">Actief! ✓</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <button onclick="completeTodayStudy()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-check-double"></i>
-                        <span>Registreer Studie Activiteit</span>
-                    </button>
-                    <p class="text-[10px] text-slate-400 text-center">Wordt ook automatisch bijgewerkt zodra je 1 Pomodoro afrondt.</p>
-                </div>
-            </div>
+            <h2 class="text-xl font-bold">Pomodoro Timer & Streak</h2>
+            <p class="text-xs text-slate-500 max-w-md">Focus op je wiskunde in blokken van 25 minuten en houd je leersnelheid vast.</p>
+            <div class="text-3xl font-mono font-bold text-amber-600">25:00</div>
         </section>
 
     </main>
 
-    <script>
-        let isDarkMode = false;
-        let activeTab = 'home';
-        let showGridAxis = true;
-
-        // Custom Modal Function
-        function showModal(title, message, iconClass = "fa-circle-info") {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerText = message;
-            document.getElementById('customModal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('customModal').classList.add('hidden');
-        }
-
-        // Theme Switcher
-        function toggleDarkMode() {
-            isDarkMode = !isDarkMode;
-            if (isDarkMode) {
-                document.documentElement.classList.add('dark');
-                document.getElementById('themeIcon').className = 'fa-solid fa-sun text-amber-400';
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.getElementById('themeIcon').className = 'fa-solid fa-moon text-slate-600';
-            }
-            redrawCompass();
-            drawFunction();
-            if (threeRenderer) threeRenderer.setClearColor(isDarkMode ? 0x0f172a : 0xf8fafc);
-        }
-
-        // Navigation Tab Switcher
-        function switchTab(tabId) {
-            activeTab = tabId;
-            const tabs = ['home', 'passer', 'liniaal', '3dshapes', 'grafiek', 'vormen', 'game', 'pomodoro'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                const panel = document.getElementById(`panel-${t}`);
-                if (btn && panel) {
-                    if (t === tabId) {
-                        btn.className = "tab-btn px-3 py-3 border-b-2 border-sky-600 text-sky-600 dark:text-sky-400 font-semibold flex items-center space-x-2 whitespace-nowrap";
-                        panel.classList.remove('hidden');
-                        panel.classList.add('flex');
-                    } else {
-                        btn.className = "tab-btn px-3 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap";
-                        panel.classList.add('hidden');
-                        panel.classList.remove('flex');
-                    }
-                }
-            });
-
-            if (tabId === 'passer') resizeCompassCanvas();
-            if (tabId === 'liniaal') resizeRulerCanvas();
-            if (tabId === '3dshapes') initThreeJS();
-            if (tabId === 'grafiek') resizeGraphCanvas();
-        }
-
-        const compassCanvas = document.getElementById('compassCanvas');
-        const ctxCompass = compassCanvas ? compassCanvas.getContext('2d') : null;
-
-        let compassState = {
-            cx: 0,
-            cy: 0,
-            radius: 120,
-            angle: 0,
-            color: '#0284c7',
-            thickness: 3,
-            isDraggingNeedle: false,
-            isRotatingPencil: false,
-            drawnArcs: []
-        };
-
-        function toggleGridAxis() {
-            showGridAxis = !showGridAxis;
-            document.getElementById('axisToggleText').innerText = `Assen: ${showGridAxis ? 'AAN' : 'UIT'}`;
-            redrawCompass();
-        }
-
-        function resizeCompassCanvas() {
-            const container = document.getElementById('canvasContainer');
-            if (!container || !compassCanvas) return;
-            compassCanvas.width = container.clientWidth;
-            compassCanvas.height = container.clientHeight;
-
-            if (compassState.cx === 0 && compassState.cy === 0) {
-                compassState.cx = compassCanvas.width / 2;
-                compassState.cy = compassCanvas.height / 2;
-            }
-            redrawCompass();
-        }
-
-        function updateCompassRadius(val) {
-            compassState.radius = parseInt(val);
-            document.getElementById('radiusValDisplay').innerText = val + " px";
-            updateCompassCalculations();
-            redrawCompass();
-        }
-
-        function setCompassColor(colorHex) {
-            compassState.color = colorHex;
-            redrawCompass();
-        }
-
-        function updateThickness(val) {
-            compassState.thickness = parseInt(val);
-            redrawCompass();
-        }
-
-        function clearCompassCanvas() {
-            compassState.drawnArcs = [];
-            redrawCompass();
-        }
-
-        function updateCompassCalculations() {
-            const r = compassState.radius;
-            const perimeter = (2 * Math.PI * r).toFixed(1);
-            const area = (Math.PI * r * r).toFixed(1);
-            const deg = Math.round((compassState.angle * 180 / Math.PI) % 360);
-            
-            document.getElementById('calcPerimeter').innerText = `${perimeter} px`;
-            document.getElementById('calcArea').innerText = `${area} px²`;
-            document.getElementById('calcAngle').innerText = `${deg < 0 ? deg + 360 : deg}°`;
-
-            // Coordinates relative to center origin (0,0)
-            const originX = compassCanvas.width / 2;
-            const originY = compassCanvas.height / 2;
-            const relX = Math.round((compassState.cx - originX) / 20);
-            const relY = Math.round((originY - compassState.cy) / 20);
-            document.getElementById('needleCoordDisplay').innerText = `(${relX}, ${relY})`;
-        }
-
-        function autoDrawFullCircle() {
-            compassState.drawnArcs.push({
-                cx: compassState.cx,
-                cy: compassState.cy,
-                radius: compassState.radius,
-                startAngle: 0,
-                endAngle: Math.PI * 2,
-                color: compassState.color,
-                thickness: compassState.thickness
-            });
-            redrawCompass();
-        }
-
-        function redrawCompass() {
-            if (!ctxCompass) return;
-            ctxCompass.clearRect(0, 0, compassCanvas.width, compassCanvas.height);
-
-            const w = compassCanvas.width;
-            const h = compassCanvas.height;
-            const originX = w / 2;
-            const originY = h / 2;
-
-            // 1. Grid (Ruitjespapier)
-            ctxCompass.strokeStyle = isDarkMode ? '#1e293b' : '#e2e8f0';
-            ctxCompass.lineWidth = 1;
-            const gridSize = 20;
-            for (let x = 0; x < w; x += gridSize) {
-                ctxCompass.beginPath(); ctxCompass.moveTo(x, 0); ctxCompass.lineTo(x, h); ctxCompass.stroke();
-            }
-            for (let y = 0; y < h; y += gridSize) {
-                ctxCompass.beginPath(); ctxCompass.moveTo(0, y); ctxCompass.lineTo(w, y); ctxCompass.stroke();
-            }
-
-            // 2. Coordinate Axes (X and Y assenstelsel)
-            if (showGridAxis) {
-                ctxCompass.strokeStyle = isDarkMode ? '#64748b' : '#94a3b8';
-                ctxCompass.lineWidth = 2;
-
-                // X-axis
-                ctxCompass.beginPath(); ctxCompass.moveTo(0, originY); ctxCompass.lineTo(w, originY); ctxCompass.stroke();
-                // Y-axis
-                ctxCompass.beginPath(); ctxCompass.moveTo(originX, 0); ctxCompass.lineTo(originX, h); ctxCompass.stroke();
-
-                // Ticks and Labels
-                ctxCompass.fillStyle = isDarkMode ? '#cbd5e1' : '#475569';
-                ctxCompass.font = '10px Inter, sans-serif';
-                ctxCompass.textAlign = 'center';
-
-                for (let x = originX + 100; x < w; x += 100) {
-                    const val = (x - originX) / 20;
-                    ctxCompass.beginPath(); ctxCompass.moveTo(x, originY - 4); ctxCompass.lineTo(x, originY + 4); ctxCompass.stroke();
-                    ctxCompass.fillText(val, x, originY + 16);
-                }
-                for (let x = originX - 100; x > 0; x -= 100) {
-                    const val = (x - originX) / 20;
-                    ctxCompass.beginPath(); ctxCompass.moveTo(x, originY - 4); ctxCompass.lineTo(x, originY + 4); ctxCompass.stroke();
-                    ctxCompass.fillText(val, x, originY + 16);
-                }
-                for (let y = originY + 100; y < h; y += 100) {
-                    const val = -(y - originY) / 20;
-                    ctxCompass.beginPath(); ctxCompass.moveTo(originX - 4, y); ctxCompass.lineTo(originX + 4, y); ctxCompass.stroke();
-                    ctxCompass.fillText(val, originX + 14, y + 3);
-                }
-                for (let y = originY - 100; y > 0; y -= 100) {
-                    const val = -(y - originY) / 20;
-                    ctxCompass.beginPath(); ctxCompass.moveTo(originX - 4, y); ctxCompass.lineTo(originX + 4, y); ctxCompass.stroke();
-                    ctxCompass.fillText(val, originX + 14, y + 3);
-                }
-                ctxCompass.fillText("(0,0)", originX - 14, originY + 14);
-            }
-
-            // 3. Drawn Arcs
-            compassState.drawnArcs.forEach(arc => {
-                ctxCompass.beginPath();
-                ctxCompass.arc(arc.cx, arc.cy, arc.radius, arc.startAngle, arc.endAngle);
-                ctxCompass.strokeStyle = arc.color;
-                ctxCompass.lineWidth = arc.thickness;
-                ctxCompass.lineCap = 'round';
-                ctxCompass.stroke();
-            });
-
-            // 4. Passer Graphic
-            const cx = compassState.cx;
-            const cy = compassState.cy;
-            const r = compassState.radius;
-            const angle = compassState.angle;
-
-            const px = cx + r * Math.cos(angle);
-            const py = cy + r * Math.sin(angle);
-
-            const hingeHeight = Math.max(80, r * 0.8);
-            const midX = (cx + px) / 2;
-            const midY = (cy + py) / 2;
-            const perpAngle = angle - Math.PI / 2;
-            const hx = midX + hingeHeight * Math.cos(perpAngle);
-            const hy = midY + hingeHeight * Math.sin(perpAngle);
-
-            // Legs
-            ctxCompass.beginPath(); ctxCompass.moveTo(cx, cy); ctxCompass.lineTo(hx, hy);
-            ctxCompass.strokeStyle = '#94a3b8'; ctxCompass.lineWidth = 6; ctxCompass.lineCap = 'round'; ctxCompass.stroke();
-
-            ctxCompass.beginPath(); ctxCompass.moveTo(px, py); ctxCompass.lineTo(hx, hy);
-            ctxCompass.strokeStyle = compassState.color; ctxCompass.lineWidth = 6; ctxCompass.lineCap = 'round'; ctxCompass.stroke();
-
-            // Joints
-            ctxCompass.beginPath(); ctxCompass.arc(hx, hy, 12, 0, Math.PI * 2);
-            ctxCompass.fillStyle = '#64748b'; ctxCompass.fill(); ctxCompass.strokeStyle = '#334155'; ctxCompass.lineWidth = 2; ctxCompass.stroke();
-
-            ctxCompass.beginPath(); ctxCompass.arc(cx, cy, 7, 0, Math.PI * 2);
-            ctxCompass.fillStyle = '#0284c7'; ctxCompass.fill(); ctxCompass.strokeStyle = '#ffffff'; ctxCompass.lineWidth = 2; ctxCompass.stroke();
-
-            ctxCompass.beginPath(); ctxCompass.arc(px, py, 10, 0, Math.PI * 2);
-            ctxCompass.fillStyle = compassState.color; ctxCompass.fill(); ctxCompass.strokeStyle = '#ffffff'; ctxCompass.lineWidth = 2.5; ctxCompass.stroke();
-        }
-
-        function getCanvasCoords(e) {
-            const rect = compassCanvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - rect.left, y: clientY - rect.top };
-        }
-
-        function handlePointerDown(e) {
-            const pos = getCanvasCoords(e);
-            const cx = compassState.cx;
-            const cy = compassState.cy;
-            const r = compassState.radius;
-            const angle = compassState.angle;
-            const px = cx + r * Math.cos(angle);
-            const py = cy + r * Math.sin(angle);
-
-            const distToNeedle = Math.hypot(pos.x - cx, pos.y - cy);
-            const distToPencil = Math.hypot(pos.x - px, pos.y - py);
-
-            if (distToPencil < 25) {
-                compassState.isRotatingPencil = true;
-            } else if (distToNeedle < 25) {
-                compassState.isDraggingNeedle = true;
-            }
-        }
-
-        function handlePointerMove(e) {
-            if (!compassState.isDraggingNeedle && !compassState.isRotatingPencil) return;
-            const pos = getCanvasCoords(e);
-
-            if (compassState.isDraggingNeedle) {
-                compassState.cx = pos.x;
-                compassState.cy = pos.y;
-                updateCompassCalculations();
-                redrawCompass();
-            } else if (compassState.isRotatingPencil) {
-                const prevAngle = compassState.angle;
-                const newAngle = Math.atan2(pos.y - compassState.cy, pos.x - compassState.cx);
-
-                compassState.drawnArcs.push({
-                    cx: compassState.cx,
-                    cy: compassState.cy,
-                    radius: compassState.radius,
-                    startAngle: prevAngle,
-                    endAngle: newAngle,
-                    color: compassState.color,
-                    thickness: compassState.thickness
-                });
-
-                compassState.angle = newAngle;
-                updateCompassCalculations();
-                redrawCompass();
-            }
-        }
-
-        function handlePointerUp() {
-            compassState.isDraggingNeedle = false;
-            compassState.isRotatingPencil = false;
-        }
-
-        if (compassCanvas) {
-            compassCanvas.addEventListener('mousedown', handlePointerDown);
-            compassCanvas.addEventListener('mousemove', handlePointerMove);
-            window.addEventListener('mouseup', handlePointerUp);
-
-            compassCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); handlePointerDown(e); }, { passive: false });
-            compassCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); handlePointerMove(e); }, { passive: false });
-            compassCanvas.addEventListener('touchend', handlePointerUp);
-        }
-
-        let threeScene, threeCamera, threeRenderer, currentMesh;
-        let is3DWireframe = false;
-        let isMouseDown3D = false, mouseX3D = 0, mouseY3D = 0;
-
-        function initThreeJS() {
-            const container = document.getElementById('threeContainer');
-            if (!container || threeRenderer) return;
-
-            threeScene = new THREE.Scene();
-            threeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-            threeCamera.position.set(8, 8, 12);
-            threeCamera.lookAt(0, 0, 0);
-
-            threeRenderer = new THREE.WebGLRenderer({ antialias: true });
-            threeRenderer.setSize(container.clientWidth, container.clientHeight);
-            threeRenderer.setClearColor(isDarkMode ? 0x0f172a : 0xf8fafc);
-            container.appendChild(threeRenderer.domElement);
-
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-            threeScene.add(ambientLight);
-
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            dirLight.position.set(10, 20, 10);
-            threeScene.add(dirLight);
-
-            const gridHelper = new THREE.GridHelper(20, 20, 0x0284c7, 0x334155);
-            threeScene.add(gridHelper);
-
-            // Orbit drag controls
-            container.addEventListener('mousedown', (e) => { isMouseDown3D = true; mouseX3D = e.clientX; mouseY3D = e.clientY; });
-            container.addEventListener('mousemove', (e) => {
-                if (!isMouseDown3D || !currentMesh) return;
-                const deltaX = e.clientX - mouseX3D;
-                const deltaY = e.clientY - mouseY3D;
-                currentMesh.rotation.y += deltaX * 0.01;
-                currentMesh.rotation.x += deltaY * 0.01;
-                mouseX3D = e.clientX;
-                mouseY3D = e.clientY;
-            });
-            window.addEventListener('mouseup', () => { isMouseDown3D = false; });
-
-            change3DShape('cube');
-            animateThree();
-        }
-
-        function change3DShape(type) {
-            if (!threeScene) return;
-            if (currentMesh) threeScene.remove(currentMesh);
-
-            const p1 = parseFloat(document.getElementById('param1Slider').value);
-            const p2 = parseFloat(document.getElementById('param2Slider').value);
-
-            let geom;
-            let vol = 0, area = 0;
-
-            if (type === 'cube') {
-                geom = new THREE.BoxGeometry(p1, p2, p1);
-                vol = p1 * p2 * p1;
-                area = 2 * (p1 * p2 + p1 * p1 + p2 * p1);
-            } else if (type === 'cylinder') {
-                geom = new THREE.CylinderGeometry(p1 / 2, p1 / 2, p2, 32);
-                const r = p1 / 2;
-                vol = Math.PI * r * r * p2;
-                area = 2 * Math.PI * r * p2 + 2 * Math.PI * r * r;
-            } else if (type === 'sphere') {
-                geom = new THREE.SphereGeometry(p1 / 2, 32, 32);
-                const r = p1 / 2;
-                vol = (4 / 3) * Math.PI * Math.pow(r, 3);
-                area = 4 * Math.PI * r * r;
-            } else if (type === 'cone') {
-                geom = new THREE.ConeGeometry(p1 / 2, p2, 32);
-                const r = p1 / 2;
-                vol = (1 / 3) * Math.PI * r * r * p2;
-                const s = Math.sqrt(r * r + p2 * p2);
-                area = Math.PI * r * (r + s);
-            } else if (type === 'pyramid') {
-                geom = new THREE.ConeGeometry(p1 / 2, p2, 4);
-                vol = (1 / 3) * (p1 * p1) * p2;
-                area = p1 * p1 + 2 * p1 * Math.sqrt(Math.pow(p1 / 2, 2) + p2 * p2);
-            }
-
-            const mat = new THREE.MeshStandardMaterial({
-                color: 0x4f46e5,
-                wireframe: is3DWireframe,
-                roughness: 0.3,
-                metalness: 0.2
-            });
-
-            currentMesh = new THREE.Mesh(geom, mat);
-            currentMesh.position.y = p2 / 2;
-            threeScene.add(currentMesh);
-
-            document.getElementById('param1Val').innerText = p1.toFixed(1);
-            document.getElementById('param2Val').innerText = p2.toFixed(1);
-            document.getElementById('shape3DVolume').innerText = `${vol.toFixed(2)} unit³`;
-            document.getElementById('shape3DArea').innerText = `${area.toFixed(2)} unit²`;
-        }
-
-        function update3DShapeParams() {
-            const shapeType = document.getElementById('shape3DSelect').value;
-            change3DShape(shapeType);
-        }
-
-        function toggle3DWireframe() {
-            is3DWireframe = !is3DWireframe;
-            document.getElementById('wireframeBtn').innerText = `Wireframe: ${is3DWireframe ? 'AAN' : 'UIT'}`;
-            if (currentMesh) currentMesh.material.wireframe = is3DWireframe;
-        }
-
-        function reset3DCamera() {
-            if (threeCamera) {
-                threeCamera.position.set(8, 8, 12);
-                threeCamera.lookAt(0, 0, 0);
-            }
-            if (currentMesh) {
-                currentMesh.rotation.set(0, 0, 0);
-            }
-        }
-
-        function animateThree() {
-            requestAnimationFrame(animateThree);
-            if (threeRenderer && threeScene && threeCamera) {
-                if (currentMesh && !isMouseDown3D) {
-                    currentMesh.rotation.y += 0.005;
-                }
-                threeRenderer.render(threeScene, threeCamera);
-            }
-        }
-
-        let gameScore = 0;
-        let gameTimeLeft = 15;
-        let gameTimerId = null;
-        let currentAnswer = null;
-
-        const mathQuestions = [
-            { q: "Wat is de omtrek van een cirkel met straal r = 5? (π ≈ 3.14)", options: ["31.4", "15.7", "78.5", "25.0"], a: "31.4", cat: "Geometrie" },
-            { q: "Wat is de oppervlakte van een driehoek met basis 8 en hoogte 5?", options: ["20", "40", "13", "30"], a: "20", cat: "Oppervlakte" },
-            { q: "Hoeveel graden is de som van alle hoeken in een driehoek?", options: ["180°", "360°", "90°", "270°"], a: "180°", cat: "Hoeken" },
-            { q: "Inhoud van een kubus met zijde 4 cm?", options: ["64 cm³", "16 cm³", "32 cm³", "96 cm³"], a: "64 cm³", cat: "3D Inhoud" },
-            { q: "Los op: 3x - 5 = 10. Wat is x?", options: ["5", "3", "15", "2"], a: "5", cat: "Algebra" }
-        ];
-
-        function startMathGame() {
-            gameScore = 0;
-            document.getElementById('gameScore').innerText = gameScore;
-            document.getElementById('startGameBtn').classList.add('hidden');
-            nextMathQuestion();
-        }
-
-        function nextMathQuestion() {
-            clearInterval(gameTimerId);
-            gameTimeLeft = 15;
-            document.getElementById('gameTimer').innerText = `${gameTimeLeft}s`;
-
-            const qObj = mathQuestions[Math.floor(Math.random() * mathQuestions.length)];
-            currentAnswer = qObj.a;
-
-            document.getElementById('gameCategoryBadge').innerText = qObj.cat;
-            document.getElementById('gameQuestionText').innerText = qObj.q;
-
-            const grid = document.getElementById('gameOptionsGrid');
-            grid.innerHTML = '';
-
-            qObj.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = "py-3 px-4 bg-slate-100 dark:bg-slate-700 hover:bg-sky-500 hover:text-white dark:hover:bg-sky-600 rounded-xl font-bold text-sm transition text-slate-800 dark:text-slate-100 shadow-sm";
-                btn.innerText = opt;
-                btn.onclick = () => checkMathAnswer(opt);
-                grid.appendChild(btn);
-            });
-
-            gameTimerId = setInterval(() => {
-                gameTimeLeft--;
-                document.getElementById('gameTimer').innerText = `${gameTimeLeft}s`;
-                if (gameTimeLeft <= 0) {
-                    clearInterval(gameTimerId);
-                    showModal("Tijd voorbij!", "Helaas, de tijd is om voor deze vraag.");
-                    document.getElementById('startGameBtn').classList.remove('hidden');
-                }
-            }, 1000);
-        }
-
-        function checkMathAnswer(selected) {
-            clearInterval(gameTimerId);
-            if (selected === currentAnswer) {
-                gameScore += 100;
-                document.getElementById('gameScore').innerText = gameScore;
-                showModal("Goed Beantwoord! 🎉", "+100 Punten!");
-                setTimeout(nextMathQuestion, 800);
-            } else {
-                showModal("Fout Antwoord", `Helaas, het juiste antwoord was: ${currentAnswer}`);
-                document.getElementById('startGameBtn').classList.remove('hidden');
-            }
-        }
-
-        const rulerCanvas = document.getElementById('rulerCanvas');
-        const ctxRuler = rulerCanvas ? rulerCanvas.getContext('2d') : null;
-        let rulerPoints = [];
-
-        function resizeRulerCanvas() {
-            const container = document.getElementById('rulerContainer');
-            if (!container || !rulerCanvas) return;
-            rulerCanvas.width = container.clientWidth;
-            rulerCanvas.height = container.clientHeight;
-            drawRulerCanvas();
-        }
-
-        function clearRulerCanvas() {
-            rulerPoints = [];
-            document.getElementById('rulerDistance').innerText = '0.0 cm';
-            document.getElementById('rulerAngle').innerText = '0.0°';
-            drawRulerCanvas();
-        }
-
-        function drawRulerCanvas() {
-            if (!ctxRuler) return;
-            ctxRuler.clearRect(0, 0, rulerCanvas.width, rulerCanvas.height);
-
-            ctxRuler.strokeStyle = isDarkMode ? '#1e293b' : '#e2e8f0';
-            ctxRuler.lineWidth = 1;
-            for (let x = 0; x < rulerCanvas.width; x += 20) {
-                ctxRuler.beginPath(); ctxRuler.moveTo(x, 0); ctxRuler.lineTo(x, rulerCanvas.height); ctxRuler.stroke();
-            }
-            for (let y = 0; y < rulerCanvas.height; y += 20) {
-                ctxRuler.beginPath(); ctxRuler.moveTo(0, y); ctxRuler.lineTo(rulerCanvas.width, y); ctxRuler.stroke();
-            }
-
-            if (rulerPoints.length > 0) {
-                ctxRuler.strokeStyle = '#0284c7';
-                ctxRuler.lineWidth = 3;
-                ctxRuler.beginPath();
-                ctxRuler.moveTo(rulerPoints[0].x, rulerPoints[0].y);
-
-                rulerPoints.forEach((p, idx) => {
-                    if (idx > 0) ctxRuler.lineTo(p.x, p.y);
-                    ctxRuler.stroke();
-
-                    ctxRuler.fillStyle = '#e11d48';
-                    ctxRuler.beginPath();
-                    ctxRuler.arc(p.x, p.y, 5, 0, Math.PI * 2);
-                    ctxRuler.fill();
-                });
-            }
-        }
-
-        if (rulerCanvas) {
-            rulerCanvas.addEventListener('click', (e) => {
-                const rect = rulerCanvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                if (rulerPoints.length >= 3) rulerPoints = [];
-                rulerPoints.push({ x, y });
-
-                if (rulerPoints.length === 2) {
-                    const distPx = Math.hypot(rulerPoints[1].x - rulerPoints[0].x, rulerPoints[1].y - rulerPoints[0].y);
-                    const distCm = (distPx / 37.795).toFixed(1);
-                    document.getElementById('rulerDistance').innerText = `${distCm} cm`;
-                } else if (rulerPoints.length === 3) {
-                    const p0 = rulerPoints[0], p1 = rulerPoints[1], p2 = rulerPoints[2];
-                    const a = Math.hypot(p1.x - p0.x, p1.y - p0.y);
-                    const b = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-                    const c = Math.hypot(p2.x - p0.x, p2.y - p0.y);
-                    const angleRad = Math.acos((a*a + b*b - c*c) / (2 * a * b));
-                    const angleDeg = (angleRad * 180 / Math.PI).toFixed(1);
-                    document.getElementById('rulerAngle').innerText = `${isNaN(angleDeg) ? 0 : angleDeg}°`;
-                }
-
-                drawRulerCanvas();
-            });
-        }
-
-        const graphCanvas = document.getElementById('graphCanvas');
-        const ctxGraph = graphCanvas ? graphCanvas.getContext('2d') : null;
-
-        function resizeGraphCanvas() {
-            if (!graphCanvas) return;
-            const container = graphCanvas.parentElement;
-            graphCanvas.width = container.clientWidth;
-            graphCanvas.height = container.clientHeight - 40;
-            drawFunction();
-        }
-
-        function setGraphFunc(fnStr) {
-            document.getElementById('functionInput').value = fnStr;
-            drawFunction();
-        }
-
-        function resetGraphZoom() {
-            drawFunction();
-        }
-
-        function drawFunction() {
-            if (!ctxGraph || !graphCanvas) return;
-            const w = graphCanvas.width;
-            const h = graphCanvas.height;
-            ctxGraph.clearRect(0, 0, w, h);
-
-            const cx = w / 2;
-            const cy = h / 2;
-            const scale = 40;
-
-            ctxGraph.strokeStyle = isDarkMode ? '#475569' : '#cbd5e1';
-            ctxGraph.lineWidth = 1.5;
-
-            ctxGraph.beginPath(); ctxGraph.moveTo(0, cy); ctxGraph.lineTo(w, cy); ctxGraph.stroke();
-            ctxGraph.beginPath(); ctxGraph.moveTo(cx, 0); ctxGraph.lineTo(cx, h); ctxGraph.stroke();
-
-            const fnExpr = document.getElementById('functionInput').value;
-            ctxGraph.beginPath();
-            ctxGraph.strokeStyle = '#0284c7';
-            ctxGraph.lineWidth = 2.5;
-
-            let first = true;
-            for (let px = 0; px < w; px += 2) {
-                const x = (px - cx) / scale;
-                try {
-                    const y = eval(fnExpr.replace(/x/g, `(${x})`));
-                    const py = cy - y * scale;
-                    if (first) {
-                        ctxGraph.moveTo(px, py);
-                        first = false;
-                    } else {
-                        ctxGraph.lineTo(px, py);
-                    }
-                } catch (err) {}
-            }
-            ctxGraph.stroke();
-        }
-
-        function calculateCircleStats() {
-            const r = parseFloat(document.getElementById('calcCircleR').value) || 0;
-            document.getElementById('outCircleP').innerText = (2 * Math.PI * r).toFixed(2);
-            document.getElementById('outCircleA').innerText = (Math.PI * r * r).toFixed(2);
-        }
-
-        function calculateTriStats() {
-            const b = parseFloat(document.getElementById('calcTriB').value) || 0;
-            const h = parseFloat(document.getElementById('calcTriH').value) || 0;
-            document.getElementById('outTriA').innerText = (0.5 * b * h).toFixed(2);
-        }
-
-        function calculateCylStats() {
-            const r = parseFloat(document.getElementById('calcCylR').value) || 0;
-            const h = parseFloat(document.getElementById('calcCylH').value) || 0;
-            document.getElementById('outCylV').innerText = (Math.PI * r * r * h).toFixed(2);
-        }
-
-        let pomoTimeLeft = 25 * 60;
-        let pomoTotalTime = 25 * 60;
-        let pomoTimerId = null;
-        let pomoMode = 'focus';
-
-        function setPomoMode(mode) {
-            clearInterval(pomoTimerId);
-            pomoTimerId = null;
-            pomoMode = mode;
-
-            if (mode === 'focus') pomoTimeLeft = 25 * 60;
-            else if (mode === 'shortBreak') pomoTimeLeft = 5 * 60;
-            else if (mode === 'longBreak') pomoTimeLeft = 15 * 60;
-
-            pomoTotalTime = pomoTimeLeft;
-            document.getElementById('pomoStartText').innerText = 'Start Focus';
-            document.getElementById('pomoPlayIcon').className = 'fa-solid fa-play';
-            document.getElementById('pomoModeLabel').innerText = mode === 'focus' ? 'Focus Sessie' : 'Pauze Tijd';
-            updatePomoDisplay();
-        }
-
-        function togglePomodoro() {
-            if (pomoTimerId) {
-                clearInterval(pomoTimerId);
-                pomoTimerId = null;
-                document.getElementById('pomoStartText').innerText = 'Hervat';
-                document.getElementById('pomoPlayIcon').className = 'fa-solid fa-play';
-            } else {
-                document.getElementById('pomoStartText').innerText = 'Pauzeer';
-                document.getElementById('pomoPlayIcon').className = 'fa-solid fa-pause';
-                pomoTimerId = setInterval(() => {
-                    pomoTimeLeft--;
-                    updatePomoDisplay();
-                    if (pomoTimeLeft <= 0) {
-                        clearInterval(pomoTimerId);
-                        pomoTimerId = null;
-                        playCompletionSound();
-                        showModal("Pomodoro Voltooid!", "Geweldig gedaan! Je focus-sessie is afgerond.");
-                        if (pomoMode === 'focus') completeTodayStudy();
-                    }
-                }, 1000);
-            }
-        }
-
-        function resetPomodoro() {
-            clearInterval(pomoTimerId);
-            pomoTimerId = null;
-            setPomoMode(pomoMode);
-        }
-
-        function updatePomoDisplay() {
-            const mins = Math.floor(pomoTimeLeft / 60);
-            const secs = pomoTimeLeft % 60;
-            document.getElementById('pomoTimeDisplay').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-            const circle = document.getElementById('pomoProgressRing');
-            const circumference = 2 * Math.PI * 110;
-            const offset = circumference - (pomoTimeLeft / pomoTotalTime) * circumference;
-            circle.style.strokeDasharray = `${circumference}`;
-            circle.style.strokeDashoffset = `${offset}`;
-        }
-
-        function playCompletionSound() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.8);
-            } catch (e) {}
-        }
-
-        function initStreakTracker() {
-            const streakCount = parseInt(localStorage.getItem('fiowis_streak_count') || '2');
-            document.getElementById('streakCountText').innerText = `${streakCount} Dagen Streak! 🔥`;
-            document.getElementById('streakTitleDisplay').innerText = `${streakCount} Dagen Streak! 🔥`;
-        }
-
-        function completeTodayStudy() {
-            const today = new Date().toDateString();
-            localStorage.setItem('fiowis_last_study_date', today);
-            localStorage.setItem('fiowis_streak_count', '2');
-
-            document.getElementById('streakCountText').innerText = `2 Dagen Streak! 🔥`;
-            document.getElementById('streakTitleDisplay').innerText = `2 Dagen Streak! 🔥`;
-            document.getElementById('todayStatusText').innerText = `Voltooid ✓`;
-            
-            showModal("Streak Behouden!", "Je hebt je studie-activiteit geregistreerd. Je 2-dagen streak is officieel behaald! 🔥");
-        }
-
-        window.onload = function() {
-            switchTab('home');
-            initStreakTracker();
-            updatePomoDisplay();
-
-            window.addEventListener('resize', () => {
-                if (activeTab === 'passer') resizeCompassCanvas();
-                if (activeTab === 'liniaal') resizeRulerCanvas();
-                if (activeTab === 'grafiek') resizeGraphCanvas();
-            });
-        };
-    </script>
+    <!-- Custom Script -->
+    <script src="app.js"></script>
 </body>
+</html>
