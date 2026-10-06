@@ -143,3 +143,9 @@ section {
         transform: translateY(0);
     }
 }
+
+/* Geodriehoek Canvas cursor instellingen */
+#rulerCanvas {
+    touch-action: none;
+    user-select: none;
+}

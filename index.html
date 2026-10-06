@@ -168,16 +168,24 @@
             </div>
         </section>
 
-        <!-- Panel Passer -->
+        <!-- Panel Passer & Assenstelsel -->
 <section id="panel-passer" class="hidden flex-1 flex-col lg:flex-row gap-6">
     <div class="flex-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative min-h-[480px]">
+        <!-- Toolbar -->
         <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
             <div class="flex items-center space-x-2">
                 <span id="passerStatusBadge" class="inline-flex items-center px-2.5 py-1 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-semibold">
-                    <i class="fa-solid fa-hand-pointer mr-1.5"></i> Klik om de passer te verankeren op het canvas!
+                    <i class="fa-solid fa-hand-pointer mr-1.5"></i> Klik om de passer te verankeren!
                 </span>
             </div>
+            <!-- Zoom & Actie Knoppen -->
             <div class="flex items-center space-x-2">
+                <div class="flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg p-0.5 space-x-1">
+                    <button onclick="changePasserZoom(-0.1)" class="px-2 py-1 hover:bg-white dark:hover:bg-slate-600 rounded font-bold text-slate-700 dark:text-slate-200" title="Uitzoomen"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <span id="passerZoomDisplay" class="px-1.5 font-mono font-semibold text-slate-700 dark:text-slate-200">100%</span>
+                    <button onclick="changePasserZoom(0.1)" class="px-2 py-1 hover:bg-white dark:hover:bg-slate-600 rounded font-bold text-slate-700 dark:text-slate-200" title="Inzoomen"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    <button onclick="resetPasserZoom()" class="px-2 py-1 hover:bg-white dark:hover:bg-slate-600 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200" title="Reset Zoom"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
                 <button onclick="unanchorCompass()" id="unanchorBtn" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition flex items-center space-x-1 shadow-sm hidden">
                     <i class="fa-solid fa-location-crosshairs"></i> <span>Verplaats Passer</span>
                 </button>
@@ -188,25 +196,26 @@
                     <i class="fa-solid fa-trash-can"></i> <span>Wis Canvas</span>
                 </button>
                 <button onclick="autoDrawFullCircle()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition flex items-center space-x-1 shadow-sm">
-                    <i class="fa-solid fa-circle-notch"></i> <span>Teken Volledige Cirkel</span>
+                    <i class="fa-solid fa-circle-notch"></i> <span>Teken Cirkel</span>
                 </button>
             </div>
         </div>
 
-        <div class="flex-1 relative w-full h-full bg-slate-50/50 dark:bg-slate-900/50" id="canvasContainer">
+        <div class="flex-1 relative w-full h-full bg-slate-50/50 dark:bg-slate-900/50 overflow-hidden" id="canvasContainer">
             <canvas id="compassCanvas" class="w-full h-full absolute inset-0"></canvas>
         </div>
     </div>
 
+    <!-- Zijpaneel Instellingen Passer -->
     <div class="w-full lg:w-80 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-5 flex flex-col justify-between">
         <div class="space-y-4">
             <h2 class="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2 border-b border-slate-100 dark:border-slate-700 pb-3">
-                <i class="fa-solid fa-sliders text-sky-600"></i>
+                <i class="fa-solid fa-compass text-sky-600"></i>
                 <span>Passer Instellingen</span>
             </h2>
 
             <div class="bg-sky-50 dark:bg-sky-950/40 rounded-xl p-3 border border-sky-100 dark:border-sky-900 text-xs flex items-center justify-between">
-                <span class="text-sky-800 dark:text-sky-300 font-semibold">Coördinaten Passer (x, y):</span>
+                <span class="text-sky-800 dark:text-sky-300 font-semibold">Coördinaten Passer:</span>
                 <span id="needleCoordDisplay" class="font-mono font-bold text-sky-600 dark:text-sky-400 text-sm">(0, 0)</span>
             </div>
 
@@ -258,6 +267,7 @@
         </div>
     </div>
 </section>
+
        
 
         <!-- Panel 3D Shapes -->
@@ -322,42 +332,118 @@
             </div>
         </section>
 
-        <!-- Panel Liniaal -->
-        <section id="panel-liniaal" class="hidden flex-1 flex-col lg:flex-row gap-6">
-            <div class="flex-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative min-h-[480px]">
-                <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs">
-                    <span class="text-slate-600 dark:text-slate-400 font-medium">
-                        <i class="fa-solid fa-drafting-compass mr-1"></i> Interactive Geodriehoek Canvas
-                    </span>
-                    <button onclick="clearRulerCanvas()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-lg font-medium transition">
-                        Wis Lijnen
+      
+<!-- Panel Geodriehoek & Liniaal -->
+<section id="panel-liniaal" class="hidden flex-1 flex-col lg:flex-row gap-6">
+    <div class="flex-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative min-h-[480px]">
+        <!-- Toolbar Geodriehoek -->
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-semibold">
+                    <i class="fa-solid fa-ruler-combined mr-1.5"></i> Sleep de Geodriehoek om te verplaatsen. Muiswiel of knoppen om te zoomen.
+                </span>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <!-- Zoom Knoppen -->
+                <div class="flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg p-0.5 space-x-1">
+                    <button onclick="changeRulerZoom(-0.1)" class="px-2 py-1 hover:bg-white dark:hover:bg-slate-600 rounded font-bold text-slate-700 dark:text-slate-200" title="Uitzoomen"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <span id="rulerZoomDisplay" class="px-1.5 font-mono font-semibold text-slate-700 dark:text-slate-200">100%</span>
+                    <button onclick="changeRulerZoom(0.1)" class="px-2 py-1 hover:bg-white dark:hover:bg-slate-600 rounded font-bold text-slate-700 dark:text-slate-200" title="Inzoomen"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    <button onclick="resetRulerZoom()" class="px-2 py-1 hover:bg-white dark:hover:bg-slate-600 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200" title="Reset Zoom"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
+
+                <button onclick="centerGeodriehoek()" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg font-medium transition flex items-center space-x-1">
+                    <i class="fa-solid fa-crosshairs"></i> <span>Centreer Tool</span>
+                </button>
+                <button onclick="clearRulerCanvas()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-lg font-medium transition flex items-center space-x-1">
+                    <i class="fa-solid fa-trash-can"></i> <span>Wis Canvas</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 relative w-full h-full bg-slate-50/50 dark:bg-slate-900/50 overflow-hidden" id="rulerCanvasContainer">
+            <canvas id="rulerCanvas" class="w-full h-full absolute inset-0 cursor-crosshair"></canvas>
+        </div>
+    </div>
+
+    <!-- Zijpaneel Instellingen Geodriehoek -->
+    <div class="w-full lg:w-80 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-5 flex flex-col justify-between">
+        <div class="space-y-4">
+            <h2 class="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2 border-b border-slate-100 dark:border-slate-700 pb-3">
+                <i class="fa-solid fa-drafting-compass text-amber-500"></i>
+                <span>Geodriehoek & Tekenen</span>
+            </h2>
+
+            <!-- Tekenmodus selectie -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Teken Gereedschap:</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="btnToolLine" onclick="setRulerToolMode('line')" class="py-2 px-3 bg-sky-600 text-white font-medium text-xs rounded-xl flex flex-col items-center justify-center space-y-1 shadow-sm">
+                        <i class="fa-solid fa-slash text-sm"></i>
+                        <span>Rechte Lijn</span>
+                    </button>
+                    <button id="btnToolTriangle" onclick="setRulerToolMode('triangle')" class="py-2 px-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium text-xs rounded-xl flex flex-col items-center justify-center space-y-1 hover:bg-slate-200">
+                        <i class="fa-solid fa-play text-sm -rotate-90"></i>
+                        <span>Driehoek</span>
+                    </button>
+                    <button id="btnToolFree" onclick="setRulerToolMode('free')" class="py-2 px-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium text-xs rounded-xl flex flex-col items-center justify-center space-y-1 hover:bg-slate-200">
+                        <i class="fa-solid fa-pen text-sm"></i>
+                        <span>Vrij Hand</span>
                     </button>
                 </div>
-                <div class="flex-1 relative w-full h-full bg-slate-50/50 dark:bg-slate-900/50" id="rulerContainer">
-                    <canvas id="rulerCanvas" class="w-full h-full absolute inset-0 cursor-crosshair"></canvas>
+            </div>
+
+            <!-- Draaien (Rotatie 360°) -->
+            <div>
+                <div class="flex justify-between text-sm mb-1 font-medium">
+                    <label class="text-slate-700 dark:text-slate-300">Rotatie / Hoek:</label>
+                    <span id="geoAngleDisplay" class="text-amber-600 dark:text-amber-400 font-bold">0°</span>
+                </div>
+                <input type="range" id="geoAngleSlider" min="0" max="360" value="0" oninput="updateGeoAngle(this.value)" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                <div class="grid grid-cols-4 gap-1 mt-2">
+                    <button onclick="setGeoAngle(0)" class="py-1 bg-slate-100 dark:bg-slate-700 hover:bg-amber-100 text-slate-700 dark:text-slate-200 text-xs rounded font-mono">0°</button>
+                    <button onclick="setGeoAngle(90)" class="py-1 bg-slate-100 dark:bg-slate-700 hover:bg-amber-100 text-slate-700 dark:text-slate-200 text-xs rounded font-mono">90°</button>
+                    <button onclick="setGeoAngle(180)" class="py-1 bg-slate-100 dark:bg-slate-700 hover:bg-amber-100 text-slate-700 dark:text-slate-200 text-xs rounded font-mono">180°</button>
+                    <button onclick="setGeoAngle(270)" class="py-1 bg-slate-100 dark:bg-slate-700 hover:bg-amber-100 text-slate-700 dark:text-slate-200 text-xs rounded font-mono">270°</button>
                 </div>
             </div>
 
-            <div class="w-full lg:w-80 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
-                <h2 class="font-bold text-base text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-700 pb-3">
-                    Geodriehoek & Hoekmeter
-                </h2>
-                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Klik 2 punten op het canvas om een afstand te meten, of 3 punten om de exacte hoek tussen twee lijnen te berekenen.
-                </p>
+            <!-- Formaat / Schaal Geodriehoek -->
+            <div>
+                <div class="flex justify-between text-sm mb-1 font-medium">
+                    <label class="text-slate-700 dark:text-slate-300">Grootte / Lengte:</label>
+                    <span id="geoScaleDisplay" class="text-amber-600 dark:text-amber-400 font-bold">100%</span>
+                </div>
+                <input type="range" id="geoScaleSlider" min="50" max="220" value="100" oninput="updateGeoScale(this.value)" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500">
+            </div>
 
-                <div class="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-4 space-y-3 text-xs border border-slate-100 dark:border-slate-700">
-                    <div>
-                        <span class="text-slate-500 block">Gemeten Afstand:</span>
-                        <span id="rulerDistance" class="text-sm font-mono font-bold text-slate-800 dark:text-slate-100">0.0 cm</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-500 block">Gemeten Hoek:</span>
-                        <span id="rulerAngle" class="text-sm font-mono font-bold text-sky-600 dark:text-sky-400">0.0°</span>
-                    </div>
+            <!-- Potlood Kleurenkiezer -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Potlood Kleur:</label>
+                <div class="flex space-x-2">
+                    <button onclick="setRulerPencilColor('#0284c7')" class="w-8 h-8 rounded-full bg-sky-600 border-2 border-white dark:border-slate-800 shadow-sm hover:scale-105 transition"></button>
+                    <button onclick="setRulerPencilColor('#e11d48')" class="w-8 h-8 rounded-full bg-rose-600 border-2 border-white dark:border-slate-800 shadow-sm hover:scale-105 transition"></button>
+                    <button onclick="setRulerPencilColor('#16a34a')" class="w-8 h-8 rounded-full bg-emerald-600 border-2 border-white dark:border-slate-800 shadow-sm hover:scale-105 transition"></button>
+                    <button onclick="setRulerPencilColor('#d97706')" class="w-8 h-8 rounded-full bg-amber-600 border-2 border-white dark:border-slate-800 shadow-sm hover:scale-105 transition"></button>
+                    <button onclick="setRulerPencilColor('#4f46e5')" class="w-8 h-8 rounded-full bg-indigo-600 border-2 border-white dark:border-slate-800 shadow-sm hover:scale-105 transition"></button>
+                    <input type="color" id="rulerColorPicker" value="#0284c7" onchange="setRulerPencilColor(this.value)" class="w-8 h-8 rounded-lg cursor-pointer border-0 bg-transparent">
                 </div>
             </div>
-        </section>
+
+            <!-- Lijndikte -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Lijndikte:</label>
+                <select id="rulerThickness" onchange="updateRulerThickness(this.value)" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200">
+                    <option value="2">Dun (2px)</option>
+                    <option value="3" selected>Normaal (3px)</option>
+                    <option value="5">Dik (5px)</option>
+                    <option value="8">Zeer Dik (8px)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</section>
 
         <!-- Panel Grafiek -->
         <section id="panel-grafiek" class="hidden flex-1 flex-col lg:flex-row gap-6">
