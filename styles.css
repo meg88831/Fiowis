@@ -2,7 +2,6 @@
    Kleurpalet & Variabelen (Licht Thema)
    ========================================== */
 :root {
-    /* Hoofdkleuren */
     --primary-blue: #0284c7;
     --primary-blue-hover: #0369a1;
     --primary-blue-light: #e0f2fe;
@@ -11,7 +10,6 @@
     --accent-green-hover: #059669;
     --accent-green-light: #d1fae5;
 
-    /* Neutrale tinten */
     --bg-page: #f8fafc;
     --bg-card: #ffffff;
     --bg-subtle: #f1f5f9;
@@ -23,7 +21,6 @@
     --text-secondary: #475569;
     --text-muted: #94a3b8;
 
-    /* Schaduwen & Verlopen */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
     --shadow-lg: 0 10px 15px -3px rgb(14 165 233 / 0.1), 0 4px 6px -4px rgb(16 185 129 / 0.1);
@@ -32,7 +29,6 @@
     --gradient-card: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
 }
 
-/* Dark Mode variatie voor variabelen */
 .dark {
     --bg-page: #0f172a;
     --bg-card: #1e293b;
@@ -45,23 +41,23 @@
     --gradient-card: linear-gradient(180deg, #1e293b 0%, #064e3b 100%);
 }
 
-/* ==========================================
-   Basis & Layout Optimisaties
-   ========================================== */
 body {
     background-color: var(--bg-page);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Canvas styling */
 canvas {
     touch-action: none;
     user-select: none;
     border-radius: 0.75rem;
 }
 
-/* Custom Scrollbar in zacht blauw/groen */
+/* Compass Canvas Cursor */
+#compassCanvas {
+    cursor: crosshair;
+}
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -90,28 +86,21 @@ canvas {
     scrollbar-width: none;
 }
 
-/* ==========================================
-   Interactieve Elementen & UI Accent
-   ========================================== */
-/* Zachte focus ring voor invoervelden en knoppen */
 input:focus, select:focus, button:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
     border-color: var(--accent-green);
 }
 
-/* Custom Range Sliders in groen/blauw thema */
 input[type="range"] {
     accent-color: var(--primary-blue);
     transition: accent-color 0.2s ease;
 }
 
-/* Hero banners met vloeiend blauw-groen verloop */
 .bg-gradient-hero {
     background: var(--gradient-hero);
 }
 
-/* Kaarten met subtiele rand en accent-hover */
 .card-hover-effect {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -125,9 +114,6 @@ input[type="range"] {
     box-shadow: var(--shadow-lg);
 }
 
-/* ==========================================
-   Animaties
-   ========================================== */
 @keyframes pulse-flame {
     0%, 100% { 
         transform: scale(1); 
@@ -143,7 +129,6 @@ input[type="range"] {
     animation: pulse-flame 2s infinite ease-in-out;
 }
 
-/* Zachte fade-in overgang bij het wisselen van tabbladen */
 section {
     animation: fadeIn 0.25s ease-in-out;
 }
@@ -157,9 +142,4 @@ section {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* Custom Pencil Cursor for Passer Canvas */
-#compassCanvas {
-    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%230284c7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'/></svg>") 0 22, crosshair;
 }
