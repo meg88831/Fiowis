@@ -335,3 +335,90 @@ window.addEventListener('resize', () => {
 window.addEventListener('DOMContentLoaded', () => {
     switchTab('home');
 });
+
+/* ==========================================
+   Passer / Compass Canvas Drawing Logic
+   ========================================== */
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
+
+function setupCompassDrawing() {
+    const canvas = document.getElementById('compassCanvas');
+    if (!canvas || canvas.dataset.drawingSetup) return;
+    canvas.dataset.drawingSetup = 'true';
+
+    function getCanvasCoordinates(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function startDrawing(e) {
+        if (e.button !== undefined && e.button !== 0) return; // Only trigger on left click
+        isDrawing = true;
+        const pos = getCanvasCoordinates(e);
+        lastX = pos.x;
+        lastY = pos.y;
+    }
+
+    function draw(e) {
+        const pos = getCanvasCoordinates(e);
+
+        // Live update axis coordinates display relative to center (0,0)
+        const centerX = Math.floor(canvas.width / 2);
+        const centerY = Math.floor(canvas.height / 2);
+        const relX = Math.round(pos.x - centerX);
+        const relY = Math.round(centerY - pos.y);
+        
+        const coordDisplay = document.getElementById('needleCoordDisplay');
+        if (coordDisplay) {
+            coordDisplay.innerText = `(${relX}, ${relY})`;
+        }
+
+        if (!isDrawing) return;
+
+        const ctx = canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.strokeStyle = compassColor;
+        ctx.lineWidth = compassThickness;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+
+        lastX = pos.x;
+        lastY = pos.y;
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+    }
+
+    // Mouse Listeners
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+
+    // Touch Support for mobile/tablets
+    canvas.addEventListener('touchstart', (e) => { startDrawing(e); e.preventDefault(); });
+    canvas.addEventListener('touchmove', (e) => { draw(e); e.preventDefault(); });
+    canvas.addEventListener('touchend', stopDrawing);
+}
+
+function initCompassCanvas() {
+    const canvas = document.getElementById('compassCanvas');
+    if (!canvas) return;
+    const container = document.getElementById('canvasContainer');
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+
+    drawCompassGrid(canvas);
+    setupCompassDrawing();
+}
