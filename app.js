@@ -917,3 +917,263 @@ window.addEventListener('resize', () => {
 window.addEventListener('DOMContentLoaded', () => {
     switchTab('home');
 });
+
+/* ==========================================
+   WISKUNDE OEFENSPEL (1e Klas VO / Brugklas)
+   ========================================== */
+
+let currentGameIndex = 0;
+let gameScore = 0;
+let gameStreak = 0;
+let answeredCurrentQuestion = false;
+
+// Vragenbank op brugklas niveau met uitgeschreven uitwerkingen
+const gameQuestions = [
+    {
+        title: "Los de vergelijking op: 3x + 7 = 22",
+        choices: [
+            {
+                steps: [
+                    "Stap 1: Trek aan beide kanten 7 af → 3x = 15",
+                    "Stap 2: Deel beide kanten door 3 → x = 5"
+                ],
+                correct: true,
+                explanation: "Uitstekend! Eerst de losse getallen naar de rechterkant halen (balansmethode) en daarna delen door het getal voor x."
+            },
+            {
+                steps: [
+                    "Stap 1: Tel aan beide kanten 7 op → 3x = 29",
+                    "Stap 2: Deel beide kanten door 3 → x = 9,67"
+                ],
+                correct: false,
+                explanation: "Helaas! Als er +7 staat, moet je 7 AFTREKKEN aan beide kanten om het op te heffen."
+            },
+            {
+                steps: [
+                    "Stap 1: Deel meteen door 3 → x + 7 = 7,33",
+                    "Stap 2: Trek 7 af → x = -0,33"
+                ],
+                correct: false,
+                explanation: "Foutieve volgorde! Werk bij de balansmethode altijd eerst losse getallen weg voordat je deelt."
+            },
+            {
+                steps: [
+                    "Stap 1: Trek 22 af van 7 → 3x = -15",
+                    "Stap 2: Deel door 3 → x = -5"
+                ],
+                correct: false,
+                explanation: "Incorrect! Je moet 7 van 22 aftrekken (22 - 7 = 15), niet andersom."
+            }
+        ]
+    },
+    {
+        title: "Los de vergelijking met haakjes op: 2(x + 4) = 18",
+        choices: [
+            {
+                steps: [
+                    "Stap 1: Werk de haakjes uit → 2x + 8 = 18",
+                    "Stap 2: Trek aan beide kanten 8 af → 2x = 10",
+                    "Stap 3: Deel door 2 → x = 5"
+                ],
+                correct: true,
+                explanation: "Klopt helemaal! Haakjes wegwerken (2 · x en 2 · 4) is de standaard eerste stap."
+            },
+            {
+                steps: [
+                    "Stap 1: Werk haakjes uit → 2x + 4 = 18",
+                    "Stap 2: Trek 4 af → 2x = 14",
+                    "Stap 3: Deel door 2 → x = 7"
+                ],
+                correct: false,
+                explanation: "Pas op! Vergeet niet om de 2 ook met de 4 binnen de haakjes te vermenigvuldigen (2 · 4 = 8)."
+            },
+            {
+                steps: [
+                    "Stap 1: Trek 4 af van 18 → 2x = 14",
+                    "Stap 2: Deel door 2 → x = 7"
+                ],
+                correct: false,
+                explanation: "Onjuist! Je kunt de 4 niet zomaar aftrekken zonder eerst de haakjes weg te werken."
+            },
+            {
+                steps: [
+                    "Stap 1: Deel door 2 → x + 4 = 9",
+                    "Stap 2: Tel 4 op → x = 13"
+                ],
+                correct: false,
+                explanation: "Bijna, maar in Stap 2 moet je 4 AFTREKKEN van 9 (9 - 4 = 5)."
+            }
+        ]
+    },
+    {
+        title: "Los op met x aan beide kanten: 5x - 3 = 2x + 12",
+        choices: [
+            {
+                steps: [
+                    "Stap 1: Trek aan beide kanten 2x af → 3x - 3 = 12",
+                    "Stap 2: Tel aan beide kanten 3 op → 3x = 15",
+                    "Stap 3: Deel beide kanten door 3 → x = 5"
+                ],
+                correct: true,
+                explanation: "Perfect! Eerst de kleinste x naar links halen, daarna het losse getal naar rechts."
+            },
+            {
+                steps: [
+                    "Stap 1: Tel 2x op aan beide kanten → 7x - 3 = 12",
+                    "Stap 2: Tel 3 op → 7x = 15",
+                    "Stap 3: Deel door 7 → x = 2,14"
+                ],
+                correct: false,
+                explanation: "Onjuist! Om +2x weg te werken aan de rechterkant moet je 2x aftrekken, niet optellen."
+            },
+            {
+                steps: [
+                    "Stap 1: Tel 3 op → 5x = 2x + 15",
+                    "Stap 2: Deel door 5 → x = 2x + 3"
+                ],
+                correct: false,
+                explanation: "Fout! Je mag niet delen als er aan de rechterkant nog een term met x staat."
+            },
+            {
+                steps: [
+                    "Stap 1: Trek 5x af → -3 = -3x + 12",
+                    "Stap 2: Trek 12 af → -15 = -3x",
+                    "Stap 3: Deel door -3 → x = -5"
+                ],
+                correct: false,
+                explanation: "Reken-foutje in stap 3: -15 gedeeld door -3 is positef 5, niet -5."
+            }
+        ]
+    },
+    {
+        title: "Bereken de oppervlakte van een driehoek met basis = 8 cm en hoogte = 5 cm",
+        choices: [
+            {
+                steps: [
+                    "Stap 1: Gebruik de formule Oppervlakte = 0,5 · basis · hoogte",
+                    "Stap 2: Vul de maten in → 0,5 · 8 · 5",
+                    "Stap 3: Reken uit → 4 · 5 = 20 cm²"
+                ],
+                correct: true,
+                explanation: "Helemaal goed! Vergeet bij een driehoek nooit te vermenigvuldigen met 0,5 (of te delen door 2)."
+            },
+            {
+                steps: [
+                    "Stap 1: Gebruik de formule Oppervlakte = basis · hoogte",
+                    "Stap 2: Vul in → 8 · 5 = 40 cm²"
+                ],
+                correct: false,
+                explanation: "Fout! Dit is de formule voor een rechthoek. Een driehoek is precies de helft daarvan."
+            },
+            {
+                steps: [
+                    "Stap 1: Tel alle zijden op → 8 + 5 + 5 = 18 cm²"
+                ],
+                correct: false,
+                explanation: "Onjuist! Dit berekent de omtrek, niet de oppervlakte."
+            },
+            {
+                steps: [
+                    "Stap 1: Kwadrateer de basis → 8² = 64",
+                    "Stap 2: Deel door hoogte → 64 / 5 = 12,8 cm²"
+                ],
+                correct: false,
+                explanation: "Onjuist! Kwadrateren is niet van toepassing bij de oppervlakte van een standaard driehoek."
+            }
+        ]
+    }
+];
+
+/* Besturingsfuncties voor het Spel */
+function startNewGame() {
+    currentGameIndex = 0;
+    gameScore = 0;
+    gameStreak = 0;
+    updateGameHeader();
+    loadQuestion();
+}
+
+function updateGameHeader() {
+    document.getElementById('gameScore').innerText = gameScore;
+    document.getElementById('gameStreak').innerText = gameStreak;
+    document.getElementById('totalQuestionsCount').innerText = gameQuestions.length;
+}
+
+function loadQuestion() {
+    answeredCurrentQuestion = false;
+    const q = gameQuestions[currentGameIndex];
+
+    document.getElementById('questionNum').innerText = currentGameIndex + 1;
+    document.getElementById('questionTitle').innerText = q.title;
+
+    const feedbackEl = document.getElementById('gameFeedback');
+    feedbackEl.classList.add('hidden');
+    feedbackEl.className = "hidden p-4 rounded-xl text-center text-xs sm:text-sm font-semibold transition-all";
+
+    document.getElementById('nextQuestionContainer').classList.add('hidden');
+
+    const choicesContainer = document.getElementById('choicesContainer');
+    choicesContainer.innerHTML = '';
+
+    // Maak voor elk stappenplan een interactieve kaart
+    q.choices.forEach((choice, idx) => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-xl p-4 cursor-pointer transition flex flex-col justify-between space-y-3 group shadow-sm";
+        card.onclick = () => selectChoice(idx);
+
+        let stepsHTML = `<div class="space-y-1.5 text-xs text-slate-700 dark:text-slate-300 font-mono">`;
+        choice.steps.forEach(step => {
+            stepsHTML += `<div class="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700/60">${step}</div>`;
+        });
+        stepsHTML += `</div>`;
+
+        card.innerHTML = `
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/50 pb-2">
+                <span class="font-bold text-xs text-slate-500 dark:text-slate-400 group-hover:text-emerald-600">Optie ${String.fromCharCode(65 + idx)}</span>
+                <i class="fa-regular fa-circle text-slate-300 dark:text-slate-600 group-hover:text-emerald-500 text-sm"></i>
+            </div>
+            ${stepsHTML}
+        `;
+        choicesContainer.appendChild(card);
+    });
+}
+
+function selectChoice(choiceIndex) {
+    if (answeredCurrentQuestion) return;
+    answeredCurrentQuestion = true;
+
+    const q = gameQuestions[currentGameIndex];
+    const selected = q.choices[choiceIndex];
+    const feedbackEl = document.getElementById('gameFeedback');
+
+    if (selected.correct) {
+        gameScore += 10 + (gameStreak * 2);
+        gameStreak++;
+        feedbackEl.className = "p-4 rounded-xl text-center text-xs sm:text-sm font-semibold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800";
+        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> ${selected.explanation}`;
+    } else {
+        gameStreak = 0;
+        feedbackEl.className = "p-4 rounded-xl text-center text-xs sm:text-sm font-semibold bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800";
+        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1.5"></i> ${selected.explanation}`;
+    }
+
+    feedbackEl.classList.remove('hidden');
+    updateGameHeader();
+
+    document.getElementById('nextQuestionContainer').classList.remove('hidden');
+}
+
+function nextQuestion() {
+    currentGameIndex++;
+    if (currentGameIndex >= gameQuestions.length) {
+        showModal('Gefeliciteerd! 🎉', `Je hebt alle vragen beantwoord! Eindscore: ${gameScore} punten.`);
+        startNewGame();
+    } else {
+        loadQuestion();
+    }
+}
+
+// Zorg dat bij het openen van het spel het eerste spelniveau automatisch laadt
+window.addEventListener('DOMContentLoaded', () => {
+    startNewGame();
+});
