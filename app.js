@@ -5,10 +5,10 @@ let currentTab = 'home';
 let isDarkMode = false;
 let showGridAxis = true;
 
-const CM_TO_PX = 30; // 1 cm = 30 pixels for realistic scale
+const CM_TO_PX = 30; // 1 cm = 30 pixels
 
 /* --- Passer State --- */
-let compassRadius = 120; // in pixels (4.0 cm = 120 px)
+let compassRadius = 120; // 4.0 cm = 120 px
 let compassColor = '#0284c7';
 let compassThickness = 3;
 let isAnchored = false;
@@ -96,6 +96,9 @@ function toggleDarkMode() {
     const themeIcon = document.getElementById('themeIcon');
     if (themeIcon) {
         themeIcon.className = isDarkMode ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-base';
+    }
+    if (scene) {
+        scene.background = new THREE.Color(isDarkMode ? 0x0f172a : 0x1e293b);
     }
 }
 
@@ -982,63 +985,199 @@ function clearRulerCanvas() {
 }
 
 /* ==========================================
-   3D SHAPES & GRAFIEK
+   3D SHAPES & THREE.JS INTERACTIVE CANVAS
    ========================================== */
-let scene, camera, renderer, currentMesh;
+let scene, camera, renderer, currentMesh, controls;
 let is3DInit = false;
+let isWireframe = false;
 
 function init3DScene() {
     const container = document.getElementById('threeContainer');
-    if (!container || is3DInit) return;
+    if (!container) return;
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0f172a);
-
-    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(10, 10, 10);
-    camera.lookAt(0, 0, 0);
-
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    container.appendChild(renderer.domElement);
-
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(5, 10, 7.5).normalize();
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0x404040));
-
-    change3DShape('cube');
-    animate3D();
-    is3DInit = true;
-}
-
-function change3DShape(shape) {
-    if (!scene) return;
-    if (currentMesh) scene.remove(currentMesh);
-
-    let geometry;
-    const p1 = parseFloat(document.getElementById('param1Slider')?.value || 4);
-    const p2 = parseFloat(document.getElementById('param2Slider')?.value || 4);
-
-    switch (shape) {
-        case 'cylinder': geometry = new THREE.CylinderGeometry(p1 / 2, p1 / 2, p2, 32); break;
-        case 'sphere': geometry = new THREE.SphereGeometry(p1 / 2, 32, 32); break;
-        case 'cone': geometry = new THREE.ConeGeometry(p1 / 2, p2, 32); break;
-        case 'pyramid': geometry = new THREE.ConeGeometry(p1 / 2, p2, 4); break;
-        case 'cube': default: geometry = new THREE.BoxGeometry(p1, p2, p1); break;
+    if (is3DInit) {
+        if (renderer && container.clientWidth > 0 && container.clientHeight > 0) {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+        return;
     }
 
-    const material = new THREE.MeshPhongMaterial({ color: 0x6366f1, wireframe: false });
-    currentMesh = new THREE.Mesh(geometry, material);
-    scene.add(currentMesh);
+    const width = container.clientWidth || 600;
+    const height = container.clientHeight || 450;
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(isDarkMode ? 0x0f172a : 0x1e293b);
+
+    camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.set(8, 8, 12);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    // OrbitControls for touch & mouse rotation/zoom/pan
+    if (typeof THREE.OrbitControls !== 'undefined') {
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+    }
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight1.position.set(10, 20, 15);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.4);
+    dirLight2.position.set(-10, -10, -10);
+    scene.add(dirLight2);
+
+    // Grid Floor
+    const gridHelper = new THREE.GridHelper(20, 20, 0x0284c7, 0x334155);
+    gridHelper.position.y = 0;
+    scene.add(gridHelper);
+
+    is3DInit = true;
+    update3DShape();
+    animate3D();
 }
 
 function animate3D() {
     requestAnimationFrame(animate3D);
-    if (currentMesh) currentMesh.rotation.y += 0.005;
-    if (renderer && scene && camera) renderer.render(scene, camera);
+    if (controls) controls.update();
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+    }
 }
 
+function update3DShapeParams() {
+    update3DShape();
+}
+
+function update3DShape() {
+    if (!scene) return;
+
+    if (currentMesh) {
+        scene.remove(currentMesh);
+        if (currentMesh.geometry) currentMesh.geometry.dispose();
+        if (currentMesh.material) currentMesh.material.dispose();
+    }
+
+    const shapeType = document.getElementById('shape3DSelect')?.value || 'cube';
+    const p1 = parseFloat(document.getElementById('param1Slider')?.value || 4); // Radius / Width
+    const p2 = parseFloat(document.getElementById('param2Slider')?.value || 4); // Height
+
+    const p1Label = document.getElementById('param1Label');
+    if (p1Label) {
+        p1Label.innerText = shapeType === 'sphere' ? 'Straal (r):' : (shapeType === 'cube' ? 'Breedte (b):' : 'Straal (r):');
+    }
+
+    const p1Val = document.getElementById('param1Val');
+    const p2Val = document.getElementById('param2Val');
+    if (p1Val) p1Val.innerText = `${p1.toFixed(1)} cm`;
+    if (p2Val) p2Val.innerText = `${p2.toFixed(1)} cm`;
+
+    const p2Container = document.getElementById('param2Container');
+    if (p2Container) {
+        p2Container.style.display = (shapeType === 'sphere') ? 'none' : 'block';
+    }
+
+    let geometry;
+    let volume = 0;
+    let surfaceArea = 0;
+
+    const r = p1 / 2; // radius
+    const h = p2;     // height
+
+    switch (shapeType) {
+        case 'cylinder':
+            geometry = new THREE.CylinderGeometry(r, r, h, 32);
+            volume = Math.PI * r * r * h;
+            surfaceArea = 2 * Math.PI * r * h + 2 * Math.PI * r * r;
+            break;
+
+        case 'sphere':
+            geometry = new THREE.SphereGeometry(r, 32, 32);
+            volume = (4 / 3) * Math.PI * Math.pow(r, 3);
+            surfaceArea = 4 * Math.PI * r * r;
+            break;
+
+        case 'cone':
+            geometry = new THREE.ConeGeometry(r, h, 32);
+            volume = (1 / 3) * Math.PI * r * r * h;
+            const slant = Math.sqrt(h * h + r * r);
+            surfaceArea = Math.PI * r * (r + slant);
+            break;
+
+        case 'pyramid':
+            geometry = new THREE.ConeGeometry(r * Math.SQRT2, h, 4);
+            const side = p1;
+            volume = (1 / 3) * side * side * h;
+            const slantPyramid = Math.sqrt(Math.pow(side / 2, 2) + h * h);
+            surfaceArea = side * side + 2 * side * slantPyramid;
+            break;
+
+        case 'cube':
+        default:
+            geometry = new THREE.BoxGeometry(p1, h, p1);
+            volume = p1 * p1 * h;
+            surfaceArea = 2 * (p1 * p1 + p1 * h + p1 * h);
+            break;
+    }
+
+    const material = new THREE.MeshPhongMaterial({
+        color: 0x6366f1,
+        emissive: 0x1e1b4b,
+        specular: 0x818cf8,
+        shininess: 30,
+        wireframe: isWireframe,
+        transparent: true,
+        opacity: 0.92
+    });
+
+    currentMesh = new THREE.Mesh(geometry, material);
+    currentMesh.position.y = (shapeType === 'sphere') ? r : (h / 2);
+
+    scene.add(currentMesh);
+
+    const volEl = document.getElementById('shape3DVolume');
+    const areaEl = document.getElementById('shape3DArea');
+    if (volEl) volEl.innerText = `${volume.toFixed(2)} cm³`;
+    if (areaEl) areaEl.innerText = `${surfaceArea.toFixed(2)} cm²`;
+}
+
+function change3DShape(shape) {
+    update3DShape();
+}
+
+function toggle3DWireframe() {
+    isWireframe = !isWireframe;
+    const btn = document.getElementById('wireframeBtn');
+    if (btn) btn.innerText = `Wireframe: ${isWireframe ? 'AAN' : 'UIT'}`;
+    if (currentMesh && currentMesh.material) {
+        currentMesh.material.wireframe = isWireframe;
+    }
+}
+
+function reset3DCamera() {
+    if (camera) {
+        camera.position.set(8, 8, 12);
+        camera.lookAt(0, 0, 0);
+    }
+    if (controls) {
+        controls.target.set(0, 0, 0);
+        controls.update();
+    }
+}
+
+/* ==========================================
+   GRAFIEKEN (FUNCTION PLOTTER)
+   ========================================== */
 function drawFunction() {
     const canvas = document.getElementById('graphCanvas');
     if (!canvas) return;
@@ -1078,6 +1217,16 @@ function drawFunction() {
         } catch (e) {}
     }
     ctx.stroke();
+}
+
+function setGraphFunc(expr) {
+    const input = document.getElementById('functionInput');
+    if (input) input.value = expr;
+    drawFunction();
+}
+
+function resetGraphZoom() {
+    drawFunction();
 }
 
 /* ==========================================
@@ -1399,6 +1548,7 @@ function updatePomodoroDisplay() {
 window.addEventListener('resize', () => {
     if (currentTab === 'passer') initCompassCanvas();
     if (currentTab === 'liniaal') initRulerCanvas();
+    if (currentTab === '3dshapes') init3DScene();
     if (currentTab === 'grafiek') drawFunction();
 });
 

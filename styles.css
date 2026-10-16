@@ -1,5 +1,5 @@
 /* ==========================================
-   Kleurpalet & Variabelen (Licht Thema)
+   Kleurpalet & Variabelen
    ========================================== */
 :root {
     --primary-blue: #0284c7;
@@ -45,7 +45,7 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-canvas {
+canvas, #threeContainer {
     touch-action: none;
     user-select: none;
     border-radius: 0.75rem;
