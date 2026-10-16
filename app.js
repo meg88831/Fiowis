@@ -47,6 +47,7 @@ let rulerDrawnCtx = rulerDrawnCanvas.getContext('2d');
    Tab Navigation & Theme
    ========================================== */
 function switchTab(tabId) {
+    alert(tabid)
     const panels = ['home', 'passer', '3dshapes', 'liniaal', 'grafiek', 'vormen', 'game', 'pomodoro'];
     
     panels.forEach(p => {
