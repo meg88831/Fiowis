@@ -5,8 +5,10 @@ let currentTab = 'home';
 let isDarkMode = false;
 let showGridAxis = true;
 
+const CM_TO_PX = 30; // 1 cm = 30 pixels for realistic scale
+
 /* --- Passer State --- */
-let compassRadius = 120;
+let compassRadius = 120; // in pixels (4.0 cm = 120 px)
 let compassColor = '#0284c7';
 let compassThickness = 3;
 let isAnchored = false;
@@ -25,11 +27,11 @@ let drawnCtx = drawnCanvas.getContext('2d');
 let rulerZoom = 1.0;
 let geoX = 300;
 let geoY = 250;
-let geoAngle = 0; // in graden (0-360)
-let geoScale = 1.0; // 0.5 tot 2.2
+let geoAngle = 0;
+let geoScale = 1.0;
 let rulerColor = '#0284c7';
 let rulerThickness = 3;
-let rulerToolMode = 'line'; // 'line', 'triangle', 'free'
+let rulerToolMode = 'line';
 
 let isDraggingGeo = false;
 let dragOffsetX = 0;
@@ -48,9 +50,13 @@ let rulerDrawnCtx = rulerDrawnCanvas.getContext('2d');
    ========================================== */
 function switchTab(tabId) {
     const panels = ['home', 'passer', '3dshapes', 'liniaal', 'grafiek', 'vormen', 'game', 'pomodoro'];
+    
     panels.forEach(p => {
         const el = document.getElementById(`panel-${p}`);
-        if (el) el.classList.add('hidden');
+        if (el) {
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        }
         
         const tabBtn = document.getElementById(`tab-${p}`);
         if (tabBtn) {
@@ -62,7 +68,7 @@ function switchTab(tabId) {
     const activePanel = document.getElementById(`panel-${tabId}`);
     if (activePanel) {
         activePanel.classList.remove('hidden');
-        if (tabId === 'passer' || tabId === 'liniaal' || tabId === '3dshapes' || tabId === 'grafiek') {
+        if (['passer', 'liniaal', '3dshapes', 'grafiek'].includes(tabId)) {
             activePanel.classList.add('flex');
         }
     }
@@ -75,10 +81,13 @@ function switchTab(tabId) {
 
     currentTab = tabId;
 
-    if (tabId === 'passer') initCompassCanvas();
-    if (tabId === 'liniaal') initRulerCanvas();
-    if (tabId === '3dshapes') init3DScene();
-    if (tabId === 'grafiek') drawFunction();
+    requestAnimationFrame(() => {
+        if (tabId === 'passer') initCompassCanvas();
+        if (tabId === 'liniaal') initRulerCanvas();
+        if (tabId === '3dshapes') init3DScene();
+        if (tabId === 'grafiek') drawFunction();
+        if (tabId === 'game') startNewGame();
+    });
 }
 
 function toggleDarkMode() {
@@ -90,6 +99,16 @@ function toggleDarkMode() {
     }
 }
 
+function showModal(title, message) {
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalMessage').innerText = message;
+    document.getElementById('customModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('customModal').classList.add('hidden');
+}
+
 /* ==========================================
    PASSER / COMPASS CANVAS LOGIC
    ========================================== */
@@ -97,23 +116,30 @@ function initCompassCanvas() {
     const canvas = document.getElementById('compassCanvas');
     if (!canvas) return;
     const container = document.getElementById('canvasContainer');
+    if (!container) return;
     
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 500;
 
     canvas.width = width;
     canvas.height = height;
 
     if (drawnCanvas.width !== width || drawnCanvas.height !== height) {
         const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = drawnCanvas.width;
-        tempCanvas.height = drawnCanvas.height;
+        tempCanvas.width = drawnCanvas.width || width;
+        tempCanvas.height = drawnCanvas.height || height;
         const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.drawImage(drawnCanvas, 0, 0);
+
+        if (drawnCanvas.width > 0 && drawnCanvas.height > 0) {
+            tempCtx.drawImage(drawnCanvas, 0, 0);
+        }
 
         drawnCanvas.width = width;
         drawnCanvas.height = height;
-        drawnCtx.drawImage(tempCanvas, 0, 0);
+
+        if (tempCanvas.width > 0 && tempCanvas.height > 0) {
+            drawnCtx.drawImage(tempCanvas, 0, 0);
+        }
     }
 
     if (!mouseX && !mouseY) {
@@ -129,6 +155,16 @@ function setupCompassEventListeners() {
     const canvas = document.getElementById('compassCanvas');
     if (!canvas || canvas.dataset.compassSetup) return;
     canvas.dataset.compassSetup = 'true';
+
+    let initialPinchDistance = 0;
+    let initialPinchZoom = 1.0;
+    let isPinching = false;
+
+    function getTouchDistance(touch1, touch2) {
+        const dx = touch1.clientX - touch2.clientX;
+        const dy = touch1.clientY - touch2.clientY;
+        return Math.hypot(dx, dy);
+    }
 
     function getPos(e) {
         const rect = canvas.getBoundingClientRect();
@@ -149,11 +185,11 @@ function setupCompassEventListeners() {
         const centerY = Math.floor(canvas.height / 2);
         const activeX = isAnchored ? anchorX : mouseX;
         const activeY = isAnchored ? anchorY : mouseY;
-        const relX = Math.round(activeX - centerX);
-        const relY = Math.round(centerY - activeY);
+        const relXcm = ((activeX - centerX) / CM_TO_PX).toFixed(1);
+        const relYcm = ((centerY - activeY) / CM_TO_PX).toFixed(1);
 
         const coordDisplay = document.getElementById('needleCoordDisplay');
-        if (coordDisplay) coordDisplay.innerText = `(${relX}, ${relY})`;
+        if (coordDisplay) coordDisplay.innerText = `(${relXcm} cm, ${relYcm} cm)`;
 
         if (isAnchored) {
             const dx = mouseX - anchorX;
@@ -216,18 +252,54 @@ function setupCompassEventListeners() {
     canvas.addEventListener('mouseup', handleUp);
     canvas.addEventListener('mouseleave', handleUp);
 
-    canvas.addEventListener('touchstart', (e) => { handleDown(e); e.preventDefault(); });
-    canvas.addEventListener('touchmove', (e) => { handleMove(e); e.preventDefault(); });
-    canvas.addEventListener('touchend', handleUp);
+    canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            isPinching = true;
+            isDrawing = false;
+            initialPinchDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            initialPinchZoom = passerZoom;
+            e.preventDefault();
+            return;
+        }
+        if (e.touches.length === 1) {
+            isPinching = false;
+            handleDown(e);
+            e.preventDefault();
+        }
+    }, { passive: false });
 
-    // Wheel Zoom op Passer Canvas
+    canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && isPinching) {
+            const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            if (initialPinchDistance > 0) {
+                const scale = currentDistance / initialPinchDistance;
+                passerZoom = Math.min(Math.max(0.5, initialPinchZoom * scale), 2.5);
+                const zoomDisplay = document.getElementById('passerZoomDisplay');
+                if (zoomDisplay) zoomDisplay.innerText = `${Math.round(passerZoom * 100)}%`;
+                renderCompass();
+            }
+            e.preventDefault();
+            return;
+        }
+        if (e.touches.length === 1 && !isPinching) {
+            handleMove(e);
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+            isPinching = false;
+        }
+        handleUp();
+    });
+
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
         changePasserZoom(e.deltaY < 0 ? 0.1 : -0.1);
     }, { passive: false });
 }
 
-/* Passer Zoom Knoppen */
 function changePasserZoom(delta) {
     passerZoom = Math.min(Math.max(0.5, passerZoom + delta), 2.5);
     document.getElementById('passerZoomDisplay').innerText = `${Math.round(passerZoom * 100)}%`;
@@ -248,7 +320,7 @@ function unanchorCompass() {
     const badge = document.getElementById('passerStatusBadge');
     if (badge) {
         badge.className = "inline-flex items-center px-2.5 py-1 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-semibold";
-        badge.innerHTML = `<i class="fa-solid fa-hand-pointer mr-1.5"></i> Klik om de passer te verankeren!`;
+        badge.innerHTML = `<i class="fa-solid fa-hand-pointer mr-1.5"></i> Klik op het canvas om de passer te verankeren!`;
     }
     const unanchorBtn = document.getElementById('unanchorBtn');
     if (unanchorBtn) unanchorBtn.classList.add('hidden');
@@ -374,49 +446,166 @@ function drawCompassGraphic(ctx, nX, nY, pX, pY) {
 
 function drawCompassGrid(canvas) {
     const ctx = canvas.getContext('2d');
+    if (!showGridAxis) return;
 
-    if (showGridAxis) {
-        ctx.strokeStyle = isDarkMode ? '#334155' : '#e2e8f0';
-        ctx.lineWidth = 1;
-        const gridSize = 20;
+    const w = canvas.width / passerZoom;
+    const h = canvas.height / passerZoom;
+    const centerX = Math.floor(w / 2);
+    const centerY = Math.floor(h / 2);
+    const gridSize = CM_TO_PX / 2; // 0.5 cm
+    const majorGridSize = CM_TO_PX * 2; // 2 cm
 
-        for (let x = 0; x < canvas.width / passerZoom; x += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvas.height / passerZoom);
-            ctx.stroke();
-        }
-        for (let y = 0; y < canvas.height / passerZoom; y += gridSize) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvas.width / passerZoom, y);
-            ctx.stroke();
-        }
+    ctx.save();
 
-        ctx.strokeStyle = isDarkMode ? '#64748b' : '#94a3b8';
-        ctx.lineWidth = 2;
-        const centerX = Math.floor((canvas.width / passerZoom) / 2);
-        const centerY = Math.floor((canvas.height / passerZoom) / 2);
-
-        ctx.beginPath();
-        ctx.moveTo(centerX, 0);
-        ctx.lineTo(centerX, canvas.height / passerZoom);
-        ctx.moveTo(0, centerY);
-        ctx.lineTo(canvas.width / passerZoom, centerY);
-        ctx.stroke();
+    // 1. Minor grid
+    ctx.strokeStyle = isDarkMode ? '#1e293b' : '#f1f5f9';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = centerX % gridSize; x < w; x += gridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, h);
     }
+    for (let y = centerY % gridSize; y < h; y += gridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
+    }
+    ctx.stroke();
+
+    // 2. Major grid
+    ctx.strokeStyle = isDarkMode ? '#334155' : '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = centerX % majorGridSize; x < w; x += majorGridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, h);
+    }
+    for (let y = centerY % majorGridSize; y < h; y += majorGridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
+    }
+    ctx.stroke();
+
+    // 3. Axes
+    const axisColor = isDarkMode ? '#38bdf8' : '#0284c7';
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 2.5;
+
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(w - 5, centerY);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(centerX, h);
+    ctx.lineTo(centerX, 5);
+    ctx.stroke();
+
+    ctx.fillStyle = axisColor;
+
+    ctx.beginPath();
+    ctx.moveTo(w, centerY);
+    ctx.lineTo(w - 12, centerY - 6);
+    ctx.lineTo(w - 12, centerY + 6);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(centerX, 0);
+    ctx.lineTo(centerX - 6, 12);
+    ctx.lineTo(centerX + 6, 12);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = isDarkMode ? '#cbd5e1' : '#475569';
+    ctx.font = 'bold 13px Inter, sans-serif';
+
+    ctx.fillText('x', w - 15, centerY + 20);
+    ctx.fillText('y', centerX - 20, 15);
+
+    ctx.font = '11px Inter, sans-serif';
+    ctx.fillText('0', centerX - 12, centerY + 15);
+
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 1.5;
+    ctx.textAlign = 'center';
+
+    for (let x = centerX + majorGridSize; x < w - 20; x += majorGridSize) {
+        const valCm = ((x - centerX) / CM_TO_PX).toFixed(0);
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - 4);
+        ctx.lineTo(x, centerY + 4);
+        ctx.stroke();
+        ctx.fillText(`${valCm} cm`, x, centerY + 18);
+    }
+    for (let x = centerX - majorGridSize; x > 20; x -= majorGridSize) {
+        const valCm = ((x - centerX) / CM_TO_PX).toFixed(0);
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - 4);
+        ctx.lineTo(x, centerY + 4);
+        ctx.stroke();
+        ctx.fillText(`${valCm} cm`, x, centerY + 18);
+    }
+
+    ctx.textAlign = 'right';
+    for (let y = centerY + majorGridSize; y < h - 20; y += majorGridSize) {
+        const valCm = ((centerY - y) / CM_TO_PX).toFixed(0);
+        ctx.beginPath();
+        ctx.moveTo(centerX - 4, y);
+        ctx.lineTo(centerX + 4, y);
+        ctx.stroke();
+        ctx.fillText(`${valCm} cm`, centerX - 8, y + 4);
+    }
+    for (let y = centerY - majorGridSize; y > 20; y -= majorGridSize) {
+        const valCm = ((centerY - y) / CM_TO_PX).toFixed(0);
+        ctx.beginPath();
+        ctx.moveTo(centerX - 4, y);
+        ctx.lineTo(centerX + 4, y);
+        ctx.stroke();
+        ctx.fillText(`${valCm} cm`, centerX - 8, y + 4);
+    }
+
+    ctx.restore();
 }
 
 function updateCompassRadius(val) {
-    compassRadius = parseFloat(val);
-    document.getElementById('radiusValDisplay').innerText = `${val} px`;
-    
-    const perimeter = (2 * Math.PI * compassRadius).toFixed(1);
-    const area = (Math.PI * Math.pow(compassRadius, 2)).toFixed(1);
-    document.getElementById('calcPerimeter').innerText = `${perimeter} px`;
-    document.getElementById('calcArea').innerText = `${area} px²`;
+    let px = parseFloat(val);
+    if (isNaN(px) || px < 15) px = 15;
+    if (px > 600) px = 600;
 
+    compassRadius = px;
+    const rCm = (compassRadius / CM_TO_PX).toFixed(1);
+
+    const rangeInput = document.getElementById('compassRadius');
+    const numInput = document.getElementById('compassRadiusInput');
+    if (rangeInput && rangeInput.value != compassRadius) rangeInput.value = compassRadius;
+    if (numInput && document.activeElement !== numInput) numInput.value = rCm;
+
+    calculateCircleMetrics();
     renderCompass();
+}
+
+function updateCompassRadiusCm(valCm) {
+    let cm = parseFloat(valCm);
+    if (isNaN(cm) || cm < 0.5) cm = 0.5;
+    if (cm > 20) cm = 20;
+
+    compassRadius = cm * CM_TO_PX;
+
+    const rangeInput = document.getElementById('compassRadius');
+    const numInput = document.getElementById('compassRadiusInput');
+    if (rangeInput) rangeInput.value = compassRadius;
+    if (numInput && document.activeElement !== numInput) numInput.value = cm.toFixed(1);
+
+    calculateCircleMetrics();
+    renderCompass();
+}
+
+function calculateCircleMetrics() {
+    const rCm = compassRadius / CM_TO_PX;
+    const perimeterCm = (2 * Math.PI * rCm).toFixed(1);
+    const areaCm2 = (Math.PI * Math.pow(rCm, 2)).toFixed(1);
+    
+    const calcPerim = document.getElementById('calcPerimeter');
+    if (calcPerim) calcPerim.innerText = `${perimeterCm} cm`;
+    
+    const calcArea = document.getElementById('calcArea');
+    if (calcArea) calcArea.innerText = `${areaCm2} cm²`;
 }
 
 function setCompassColor(color) {
@@ -607,14 +796,12 @@ function setupRulerEventListeners() {
     canvas.addEventListener('touchmove', (e) => { handleMove(e); e.preventDefault(); });
     canvas.addEventListener('touchend', handleUp);
 
-    // Muiswiel Zoom op Geodriehoek Canvas
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
         changeRulerZoom(e.deltaY < 0 ? 0.1 : -0.1);
     }, { passive: false });
 }
 
-/* Zoom Knoppen Geodriehoek Canvas */
 function changeRulerZoom(delta) {
     rulerZoom = Math.min(Math.max(0.5, rulerZoom + delta), 2.5);
     document.getElementById('rulerZoomDisplay').innerText = `${Math.round(rulerZoom * 100)}%`;
@@ -627,7 +814,6 @@ function resetRulerZoom() {
     renderRulerScene();
 }
 
-/* Teken & Rendering van Geodriehoek Canvas */
 function renderRulerScene() {
     const canvas = document.getElementById('rulerCanvas');
     if (!canvas) return;
@@ -638,13 +824,10 @@ function renderRulerScene() {
     ctx.save();
     ctx.scale(rulerZoom, rulerZoom);
 
-    // Grid achtergrond
     drawCompassGrid(canvas);
 
-    // Reeds getekende figuren
     ctx.drawImage(rulerDrawnCanvas, 0, 0);
 
-    // Live preview tijdens het slepen/tekenen
     if (isDrawingRuler && rulerStartPos && rulerCurrentPos) {
         ctx.save();
         ctx.strokeStyle = rulerColor;
@@ -678,13 +861,10 @@ function renderRulerScene() {
         ctx.restore();
     }
 
-    // Geodriehoek Tool Visualisaties
     drawGeodriehoekGraphic(ctx);
-
     ctx.restore();
 }
 
-/* Tekent de Geodriehoek met schaalverdeling en gradenboog */
 function drawGeodriehoekGraphic(ctx) {
     ctx.save();
     ctx.translate(geoX, geoY);
@@ -694,7 +874,6 @@ function drawGeodriehoekGraphic(ctx) {
     const baseHalf = 160;
     const height = 140;
 
-    // Transparante gele kunststof geodriehoek body
     ctx.beginPath();
     ctx.moveTo(-baseHalf, 0);
     ctx.lineTo(baseHalf, 0);
@@ -707,7 +886,6 @@ function drawGeodriehoekGraphic(ctx) {
     ctx.strokeStyle = '#d97706';
     ctx.stroke();
 
-    // 90-graden loodlijn in het midden
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(0, height);
@@ -715,7 +893,6 @@ function drawGeodriehoekGraphic(ctx) {
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Millimeter/Centimeter verdeling op de liniaal-rand
     ctx.strokeStyle = '#78350f';
     ctx.fillStyle = '#78350f';
     ctx.font = '9px sans-serif';
@@ -738,7 +915,6 @@ function drawGeodriehoekGraphic(ctx) {
     }
     ctx.fillText('0', 0, 19);
 
-    // Gradenboog Bogen (0° tot 180°)
     ctx.beginPath();
     ctx.arc(0, 0, 90, 0.2 * Math.PI, 0.8 * Math.PI);
     ctx.strokeStyle = '#d97706';
@@ -748,7 +924,6 @@ function drawGeodriehoekGraphic(ctx) {
     ctx.restore();
 }
 
-/* Besturing Geodriehoek Instellingen */
 function updateGeoAngle(val) {
     geoAngle = parseFloat(val);
     document.getElementById('geoAngleDisplay').innerText = `${geoAngle}°`;
@@ -807,7 +982,7 @@ function clearRulerCanvas() {
 }
 
 /* ==========================================
-   3D SHAPES & GRAFIEK (Ondersteuning)
+   3D SHAPES & GRAFIEK
    ========================================== */
 let scene, camera, renderer, currentMesh;
 let is3DInit = false;
@@ -906,28 +1081,13 @@ function drawFunction() {
 }
 
 /* ==========================================
-   Window Resize & Init
+   OEFENSPEL (1e Klas VO)
    ========================================== */
-window.addEventListener('resize', () => {
-    if (currentTab === 'passer') initCompassCanvas();
-    if (currentTab === 'liniaal') initRulerCanvas();
-    if (currentTab === 'grafiek') drawFunction();
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-    switchTab('home');
-});
-
-/* ==========================================
-   WISKUNDE OEFENSPEL (1e Klas VO / Brugklas)
-   ========================================== */
-
 let currentGameIndex = 0;
 let gameScore = 0;
 let gameStreak = 0;
 let answeredCurrentQuestion = false;
 
-// Vragenbank op brugklas niveau met uitgeschreven uitwerkingen
 const gameQuestions = [
     {
         title: "Los de vergelijking op: 3x + 7 = 22",
@@ -1041,7 +1201,7 @@ const gameQuestions = [
                     "Stap 3: Deel door -3 → x = -5"
                 ],
                 correct: false,
-                explanation: "Reken-foutje in stap 3: -15 gedeeld door -3 is positef 5, niet -5."
+                explanation: "Reken-foutje in stap 3: -15 gedeeld door -3 is positief 5, niet -5."
             }
         ]
     },
@@ -1084,7 +1244,6 @@ const gameQuestions = [
     }
 ];
 
-/* Besturingsfuncties voor het Spel */
 function startNewGame() {
     currentGameIndex = 0;
     gameScore = 0;
@@ -1094,28 +1253,38 @@ function startNewGame() {
 }
 
 function updateGameHeader() {
-    document.getElementById('gameScore').innerText = gameScore;
-    document.getElementById('gameStreak').innerText = gameStreak;
-    document.getElementById('totalQuestionsCount').innerText = gameQuestions.length;
+    const scoreEl = document.getElementById('gameScore');
+    const streakEl = document.getElementById('gameStreak');
+    const totalEl = document.getElementById('totalQuestionsCount');
+
+    if (scoreEl) scoreEl.innerText = gameScore;
+    if (streakEl) streakEl.innerText = gameStreak;
+    if (totalEl) totalEl.innerText = gameQuestions.length;
 }
 
 function loadQuestion() {
     answeredCurrentQuestion = false;
     const q = gameQuestions[currentGameIndex];
 
-    document.getElementById('questionNum').innerText = currentGameIndex + 1;
-    document.getElementById('questionTitle').innerText = q.title;
+    const qNum = document.getElementById('questionNum');
+    const qTitle = document.getElementById('questionTitle');
+    if (qNum) qNum.innerText = currentGameIndex + 1;
+    if (qTitle) qTitle.innerText = q.title;
 
     const feedbackEl = document.getElementById('gameFeedback');
-    feedbackEl.classList.add('hidden');
-    feedbackEl.className = "hidden p-4 rounded-xl text-center text-xs sm:text-sm font-semibold transition-all";
+    if (feedbackEl) {
+        feedbackEl.classList.add('hidden');
+        feedbackEl.className = "hidden p-4 rounded-xl text-center text-xs sm:text-sm font-semibold transition-all";
+    }
 
-    document.getElementById('nextQuestionContainer').classList.add('hidden');
+    const nextContainer = document.getElementById('nextQuestionContainer');
+    if (nextContainer) nextContainer.classList.add('hidden');
 
     const choicesContainer = document.getElementById('choicesContainer');
+    if (!choicesContainer) return;
+
     choicesContainer.innerHTML = '';
 
-    // Maak voor elk stappenplan een interactieve kaart
     q.choices.forEach((choice, idx) => {
         const card = document.createElement('div');
         card.className = "bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-xl p-4 cursor-pointer transition flex flex-col justify-between space-y-3 group shadow-sm";
@@ -1149,18 +1318,23 @@ function selectChoice(choiceIndex) {
     if (selected.correct) {
         gameScore += 10 + (gameStreak * 2);
         gameStreak++;
-        feedbackEl.className = "p-4 rounded-xl text-center text-xs sm:text-sm font-semibold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800";
-        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> ${selected.explanation}`;
+        if (feedbackEl) {
+            feedbackEl.className = "p-4 rounded-xl text-center text-xs sm:text-sm font-semibold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800";
+            feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> ${selected.explanation}`;
+        }
     } else {
         gameStreak = 0;
-        feedbackEl.className = "p-4 rounded-xl text-center text-xs sm:text-sm font-semibold bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800";
-        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1.5"></i> ${selected.explanation}`;
+        if (feedbackEl) {
+            feedbackEl.className = "p-4 rounded-xl text-center text-xs sm:text-sm font-semibold bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800";
+            feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1.5"></i> ${selected.explanation}`;
+        }
     }
 
-    feedbackEl.classList.remove('hidden');
+    if (feedbackEl) feedbackEl.classList.remove('hidden');
     updateGameHeader();
 
-    document.getElementById('nextQuestionContainer').classList.remove('hidden');
+    const nextContainer = document.getElementById('nextQuestionContainer');
+    if (nextContainer) nextContainer.classList.remove('hidden');
 }
 
 function nextQuestion() {
@@ -1173,7 +1347,61 @@ function nextQuestion() {
     }
 }
 
-// Zorg dat bij het openen van het spel het eerste spelniveau automatisch laadt
+/* ==========================================
+   POMODORO TIMER
+   ========================================== */
+let pomoTime = 25 * 60;
+let pomoInterval = null;
+let pomoRunning = false;
+
+function togglePomodoro() {
+    const btn = document.getElementById('pomoStartBtn');
+    if (pomoRunning) {
+        clearInterval(pomoInterval);
+        pomoRunning = false;
+        if (btn) btn.innerText = "Hervat Timer";
+    } else {
+        pomoRunning = true;
+        if (btn) btn.innerText = "Pauzeer";
+        pomoInterval = setInterval(() => {
+            if (pomoTime > 0) {
+                pomoTime--;
+                updatePomodoroDisplay();
+            } else {
+                clearInterval(pomoInterval);
+                pomoRunning = false;
+                showModal('Pomodoro Voltooid! 🔔', 'Goed gedaan! Neem 5 minuten pauze.');
+                resetPomodoro();
+            }
+        }, 1000);
+    }
+}
+
+function resetPomodoro() {
+    clearInterval(pomoInterval);
+    pomoRunning = false;
+    pomoTime = 25 * 60;
+    updatePomodoroDisplay();
+    const btn = document.getElementById('pomoStartBtn');
+    if (btn) btn.innerText = "Start Timer";
+}
+
+function updatePomodoroDisplay() {
+    const min = Math.floor(pomoTime / 60).toString().padStart(2, '0');
+    const sec = (pomoTime % 60).toString().padStart(2, '0');
+    const display = document.getElementById('pomodoroDisplay');
+    if (display) display.innerText = `${min}:${sec}`;
+}
+
+/* ==========================================
+   Window Resize & Init
+   ========================================== */
+window.addEventListener('resize', () => {
+    if (currentTab === 'passer') initCompassCanvas();
+    if (currentTab === 'liniaal') initRulerCanvas();
+    if (currentTab === 'grafiek') drawFunction();
+});
+
 window.addEventListener('DOMContentLoaded', () => {
-    startNewGame();
+    switchTab('home');
 });
