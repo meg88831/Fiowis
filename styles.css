@@ -26,7 +26,6 @@
     --shadow-lg: 0 10px 15px -3px rgb(14 165 233 / 0.1), 0 4px 6px -4px rgb(16 185 129 / 0.1);
     
     --gradient-hero: linear-gradient(135deg, #0284c7 0%, #0d9488 50%, #10b981 100%);
-    --gradient-card: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
 }
 
 .dark {
@@ -38,7 +37,6 @@
     --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
     --text-muted: #64748b;
-    --gradient-card: linear-gradient(180deg, #1e293b 0%, #064e3b 100%);
 }
 
 body {
@@ -53,9 +51,8 @@ canvas {
     border-radius: 0.75rem;
 }
 
-/* Compass Canvas Cursor */
-#compassCanvas {
-    cursor: crosshair;
+#compassCanvas, #rulerCanvas {
+    touch-action: none;
 }
 
 ::-webkit-scrollbar {
@@ -142,10 +139,4 @@ section {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* Geodriehoek Canvas cursor instellingen */
-#rulerCanvas {
-    touch-action: none;
-    user-select: none;
 }
