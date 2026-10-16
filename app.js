@@ -130,32 +130,6 @@ function setupCompassEventListeners() {
     if (!canvas || canvas.dataset.compassSetup) return;
     canvas.dataset.compassSetup = 'true';
 
-    let isPinching = false;
-    let initialPinchDistance = 0;
-    let initialZoom = 1.0;
-
-    function getPos(e) {
-        const rect = canvas.getBoundingClientRect();
-        const touch = e.touches ? e.touches[0] : e;
-        return {
-            x: (touch.clientX - rect.left) / passerZoom,
-            y: (touch.clientY - rect.top) / passerZoom
-        };
-    }
-
-    function getTouchDistance(e) {
-        if (e.touches.length < 2) return 0;
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touchesHier is de bijgewerkte `setupCompassEventListeners` functie voor **`app.js`**. Hiermee wordt pinch-to-zoom (in- en uitzoomen met twee vingers op een touchscreen) toegevoegd aan het Passer-canvas.
-
-### Vervang `setupCompassEventListeners` in `app.js` met deze code:
-
-```javascript
-function setupCompassEventListeners() {
-    const canvas = document.getElementById('compassCanvas');
-    if (!canvas || canvas.dataset.compassSetup) return;
-    canvas.dataset.compassSetup = 'true';
-
     let initialPinchDistance = 0;
     let initialPinchZoom = 1.0;
     let isPinching = false;
@@ -247,13 +221,13 @@ function setupCompassEventListeners() {
         lastAngle = null;
     }
 
-    // Muis events
+    // Mouse events
     canvas.addEventListener('mousemove', handleMove);
     canvas.addEventListener('mousedown', handleDown);
     canvas.addEventListener('mouseup', handleUp);
     canvas.addEventListener('mouseleave', handleUp);
 
-    // Touch events (Pinch-to-zoom + tekenen)
+    // Touch events for touchscreen devices (Pinch-to-zoom & single-finger drawing)
     canvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
             isPinching = true;
@@ -296,12 +270,14 @@ function setupCompassEventListeners() {
         handleUp();
     });
 
-    // Wheel zoom voor desktops
+    // Mouse wheel zoom for desktop
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
         changePasserZoom(e.deltaY < 0 ? 0.1 : -0.1);
     }, { passive: false });
 }
+
+
 
     function handleDown(e) {
         if (e.button !== undefined && e.button !== 0) return;
