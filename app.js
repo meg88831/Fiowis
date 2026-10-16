@@ -130,6 +130,42 @@ function setupCompassEventListeners() {
     if (!canvas || canvas.dataset.compassSetup) return;
     canvas.dataset.compassSetup = 'true';
 
+    let isPinching = false;
+    let initialPinchDistance = 0;
+    let initialZoom = 1.0;
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        return {
+            x: (touch.clientX - rect.left) / passerZoom,
+            y: (touch.clientY - rect.top) / passerZoom
+        };
+    }
+
+    function getTouchDistance(e) {
+        if (e.touches.length < 2) return 0;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touchesHier is de bijgewerkte `setupCompassEventListeners` functie voor **`app.js`**. Hiermee wordt pinch-to-zoom (in- en uitzoomen met twee vingers op een touchscreen) toegevoegd aan het Passer-canvas.
+
+### Vervang `setupCompassEventListeners` in `app.js` met deze code:
+
+```javascript
+function setupCompassEventListeners() {
+    const canvas = document.getElementById('compassCanvas');
+    if (!canvas || canvas.dataset.compassSetup) return;
+    canvas.dataset.compassSetup = 'true';
+
+    let initialPinchDistance = 0;
+    let initialPinchZoom = 1.0;
+    let isPinching = false;
+
+    function getTouchDistance(touch1, touch2) {
+        const dx = touch1.clientX - touch2.clientX;
+        const dy = touch1.clientY - touch2.clientY;
+        return Math.hypot(dx, dy);
+    }
+
     function getPos(e) {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -178,6 +214,94 @@ function setupCompassEventListeners() {
 
         renderCompass();
     }
+
+    function handleDown(e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        const pos = getPos(e);
+        mouseX = pos.x;
+        mouseY = pos.y;
+
+        if (!isAnchored) {
+            isAnchored = true;
+            anchorX = mouseX;
+            anchorY = mouseY;
+            
+            const badge = document.getElementById('passerStatusBadge');
+            if (badge) {
+                badge.className = "inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-semibold";
+                badge.innerHTML = `<i class="fa-solid fa-thumbtack mr-1.5"></i> Passer verankerd! Sleep om te tekenen.`;
+            }
+            const unanchorBtn = document.getElementById('unanchorBtn');
+            if (unanchorBtn) unanchorBtn.classList.remove('hidden');
+        } else {
+            isDrawing = true;
+            const dx = mouseX - anchorX;
+            const dy = mouseY - anchorY;
+            lastAngle = Math.atan2(dy, dx);
+        }
+        renderCompass();
+    }
+
+    function handleUp() {
+        isDrawing = false;
+        lastAngle = null;
+    }
+
+    // Muis events
+    canvas.addEventListener('mousemove', handleMove);
+    canvas.addEventListener('mousedown', handleDown);
+    canvas.addEventListener('mouseup', handleUp);
+    canvas.addEventListener('mouseleave', handleUp);
+
+    // Touch events (Pinch-to-zoom + tekenen)
+    canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            isPinching = true;
+            isDrawing = false;
+            initialPinchDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            initialPinchZoom = passerZoom;
+            e.preventDefault();
+            return;
+        }
+        if (e.touches.length === 1) {
+            isPinching = false;
+            handleDown(e);
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && isPinching) {
+            const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            if (initialPinchDistance > 0) {
+                const scale = currentDistance / initialPinchDistance;
+                passerZoom = Math.min(Math.max(0.5, initialPinchZoom * scale), 2.5);
+                const zoomDisplay = document.getElementById('passerZoomDisplay');
+                if (zoomDisplay) zoomDisplay.innerText = `${Math.round(passerZoom * 100)}%`;
+                renderCompass();
+            }
+            e.preventDefault();
+            return;
+        }
+        if (e.touches.length === 1 && !isPinching) {
+            handleMove(e);
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+            isPinching = false;
+        }
+        handleUp();
+    });
+
+    // Wheel zoom voor desktops
+    canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        changePasserZoom(e.deltaY < 0 ? 0.1 : -0.1);
+    }, { passive: false });
+}
 
     function handleDown(e) {
         if (e.button !== undefined && e.button !== 0) return;
@@ -266,110 +390,161 @@ function renderCompass() {
     ctx.save();
     ctx.scale(passerZoom, passerZoom);
 
-    drawCompassGrid(canvas);
-    ctx.drawImage(drawnCanvas, 0, 0);
+    /* Tekent een wiskundig X en Y assenstelsel met pijlpunten, ticks en labels */
+function drawCompassGrid(canvas) {
+    const ctx = canvas.getContext('2d');
+    if (!showGridAxis) return;
 
-    const needleX = isAnchored ? anchorX : mouseX;
-    const needleY = isAnchored ? anchorY : mouseY;
-
-    let currentAngle = 0;
-    if (isAnchored) {
-        const dx = mouseX - anchorX;
-        const dy = mouseY - anchorY;
-        currentAngle = Math.atan2(dy, dx);
-    }
-
-    const pencilX = needleX + compassRadius * Math.cos(currentAngle);
-    const pencilY = needleY + compassRadius * Math.sin(currentAngle);
-
-    if (isAnchored) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(needleX, needleY, compassRadius, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(2, 132, 199, 0.3)';
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([4, 4]);
-        ctx.stroke();
-        ctx.restore();
-    }
-
-    drawCompassGraphic(ctx, needleX, needleY, pencilX, pencilY);
-    ctx.restore();
-}
-
-function drawCompassGraphic(ctx, nX, nY, pX, pY) {
-    const dx = pX - nX;
-    const dy = pY - nY;
-    const dist = Math.hypot(dx, dy);
-
-    const legLen = Math.max(dist * 0.85, 90);
-    const midX = (nX + pX) / 2;
-    const midY = (nY + pY) / 2;
-    const hDiff = Math.sqrt(Math.max(0, legLen * legLen - (dist / 2) * (dist / 2)));
-    const hAngle = Math.atan2(dy, dx) - Math.PI / 2;
-    
-    const hingeX = midX + hDiff * Math.cos(hAngle);
-    const hingeY = midY + hDiff * Math.sin(hAngle);
-
-    const handleX = hingeX + 22 * Math.cos(hAngle);
-    const handleY = hingeY + 22 * Math.sin(hAngle);
+    const w = canvas.width / passerZoom;
+    const h = canvas.height / passerZoom;
+    const centerX = Math.floor(w / 2);
+    const centerY = Math.floor(h / 2);
+    const gridSize = 20;
+    const majorGridSize = 100;
 
     ctx.save();
 
+    // 1. Ruitjesraster (Minor grid)
+    ctx.strokeStyle = isDarkMode ? '#1e293b' : '#f1f5f9';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(hingeX, hingeY);
-    ctx.lineTo(handleX, handleY);
-    ctx.strokeStyle = '#475569';
-    ctx.lineWidth = 8;
-    ctx.lineCap = 'round';
+    for (let x = centerX % gridSize; x < w; x += gridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, h);
+    }
+    for (let y = centerY % gridSize; y < h; y += gridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
+    }
     ctx.stroke();
 
+    // 2. Groter raster (Major grid elke 100px)
+    ctx.strokeStyle = isDarkMode ? '#334155' : '#e2e8f0';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.arc(handleX, handleY, 5, 0, Math.PI * 2);
-    ctx.fillStyle = '#1e293b';
+    for (let x = centerX % majorGridSize; x < w; x += majorGridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, h);
+    }
+    for (let y = centerY % majorGridSize; y < h; y += majorGridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
+    }
+    ctx.stroke();
+
+    // 3. Hoofd X-as en Y-as (In opvallend blauw)
+    const axisColor = isDarkMode ? '#38bdf8' : '#0284c7';
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 2.5;
+
+    // X-as lijn
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(w - 5, centerY);
+    ctx.stroke();
+
+    // Y-as lijn
+    ctx.beginPath();
+    ctx.moveTo(centerX, h);
+    ctx.lineTo(centerX, 5);
+    ctx.stroke();
+
+    // Pijlpunten op de assen
+    ctx.fillStyle = axisColor;
+
+    // Pijlpunt X-as (Rechts)
+    ctx.beginPath();
+    ctx.moveTo(w, centerY);
+    ctx.lineTo(w - 12, centerY - 6);
+    ctx.lineTo(w - 12, centerY + 6);
+    ctx.closePath();
     ctx.fill();
 
+    // Pijlpunt Y-as (Boven)
     ctx.beginPath();
-    ctx.moveTo(hingeX, hingeY);
-    ctx.lineTo(nX, nY);
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 6;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(hingeX, hingeY);
-    ctx.lineTo(pX, pY);
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 6;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(hingeX, hingeY, 9, 0, Math.PI * 2);
-    ctx.fillStyle = '#0284c7';
+    ctx.moveTo(centerX, 0);
+    ctx.lineTo(centerX - 6, 12);
+    ctx.lineTo(centerX + 6, 12);
+    ctx.closePath();
     ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#ffffff';
-    ctx.stroke();
 
-    ctx.beginPath();
-    ctx.arc(nX, nY, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#ef4444';
-    ctx.fill();
+    // 4. Labels & Getallen op de assen
+    ctx.fillStyle = isDarkMode ? '#cbd5e1' : '#475569';
+    ctx.font = 'bold 13px Inter, sans-serif';
+
+    // As-benamingen ('x' en 'y')
+    ctx.fillText('x', w - 15, centerY + 20);
+    ctx.fillText('y', centerX - 20, 15);
+
+    // Oorsprong '0'
+    ctx.font = '11px Inter, sans-serif';
+    ctx.fillText('0', centerX - 12, centerY + 15);
+
+    // Ticks en Getallen op de X-as
+    ctx.strokeStyle = axisColor;
     ctx.lineWidth = 1.5;
-    ctx.strokeStyle = '#ffffff';
-    ctx.stroke();
+    ctx.textAlign = 'center';
 
-    ctx.beginPath();
-    ctx.arc(pX, pY, Math.max(compassThickness, 4), 0, Math.PI * 2);
-    ctx.fillStyle = compassColor;
-    ctx.fill();
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = '#ffffff';
-    ctx.stroke();
+    for (let x = centerX + majorGridSize; x < w - 20; x += majorGridSize) {
+        const val = Math.round(x - centerX);
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - 4);
+        ctx.lineTo(x, centerY + 4);
+        ctx.stroke();
+        ctx.fillText(val.toString(), x, centerY + 18);
+    }
+    for (let x = centerX - majorGridSize; x > 20; x -= majorGridSize) {
+        const val = Math.round(x - centerX);
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - 4);
+        ctx.lineTo(x, centerY + 4);
+        ctx.stroke();
+        ctx.fillText(val.toString(), x, centerY + 18);
+    }
+
+    // Ticks en Getallen op de Y-as
+    ctx.textAlign = 'right';
+    for (let y = centerY + majorGridSize; y < h - 20; y += majorGridSize) {
+        const val = Math.round(centerY - y);
+        ctx.beginPath();
+        ctx.moveTo(centerX - 4, y);
+        ctx.lineTo(centerX + 4, y);
+        ctx.stroke();
+        ctx.fillText(val.toString(), centerX - 8, y + 4);
+    }
+    for (let y = centerY - majorGridSize; y > 20; y -= majorGridSize) {
+        const val = Math.round(centerY - y);
+        ctx.beginPath();
+        ctx.moveTo(centerX - 4, y);
+        ctx.lineTo(centerX + 4, y);
+        ctx.stroke();
+        ctx.fillText(val.toString(), centerX - 8, y + 4);
+    }
 
     ctx.restore();
+}
+
+/* Update de straal via schuifbalk OF getalleninvoer */
+function updateCompassRadius(val) {
+    let num = parseFloat(val);
+    if (isNaN(num) || num < 1) num = 1;
+    if (num > 600) num = 600;
+
+    compassRadius = num;
+
+    // Synchroniseer slider en number input
+    const rangeInput = document.getElementById('compassRadius');
+    const numInput = document.getElementById('compassRadiusInput');
+    if (rangeInput && rangeInput.value != compassRadius) rangeInput.value = compassRadius;
+    if (numInput && document.activeElement !== numInput) numInput.value = compassRadius;
+
+    // Herberekeningen
+    const perimeter = (2 * Math.PI * compassRadius).toFixed(1);
+    const area = (Math.PI * Math.pow(compassRadius, 2)).toFixed(1);
+    
+    const calcPerim = document.getElementById('calcPerimeter');
+    if (calcPerim) calcPerim.innerText = `${perimeter} px`;
+    
+    const calcArea = document.getElementById('calcArea');
+    if (calcArea) calcArea.innerText = `${area} px²`;
+
+    renderCompass();
 }
 
 function drawCompassGrid(canvas) {
@@ -407,14 +582,159 @@ function drawCompassGrid(canvas) {
     }
 }
 
+/* Tekent een wiskundig X en Y assenstelsel met pijlpunten, ticks en labels */
+function drawCompassGrid(canvas) {
+    const ctx = canvas.getContext('2d');
+    if (!showGridAxis) return;
+
+    const w = canvas.width / passerZoom;
+    const h = canvas.height / passerZoom;
+    const centerX = Math.floor(w / 2);
+    const centerY = Math.floor(h / 2);
+    const gridSize = 20;
+    const majorGridSize = 100;
+
+    ctx.save();
+
+    // 1. Ruitjesraster (Minor grid)
+    ctx.strokeStyle = isDarkMode ? '#1e293b' : '#f1f5f9';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = centerX % gridSize; x < w; x += gridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, h);
+    }
+    for (let y = centerY % gridSize; y < h; y += gridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
+    }
+    ctx.stroke();
+
+    // 2. Groter raster (Major grid elke 100px)
+    ctx.strokeStyle = isDarkMode ? '#334155' : '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = centerX % majorGridSize; x < w; x += majorGridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, h);
+    }
+    for (let y = centerY % majorGridSize; y < h; y += majorGridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
+    }
+    ctx.stroke();
+
+    // 3. Hoofd X-as en Y-as (In opvallend blauw)
+    const axisColor = isDarkMode ? '#38bdf8' : '#0284c7';
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 2.5;
+
+    // X-as lijn
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(w - 5, centerY);
+    ctx.stroke();
+
+    // Y-as lijn
+    ctx.beginPath();
+    ctx.moveTo(centerX, h);
+    ctx.lineTo(centerX, 5);
+    ctx.stroke();
+
+    // Pijlpunten op de assen
+    ctx.fillStyle = axisColor;
+
+    // Pijlpunt X-as (Rechts)
+    ctx.beginPath();
+    ctx.moveTo(w, centerY);
+    ctx.lineTo(w - 12, centerY - 6);
+    ctx.lineTo(w - 12, centerY + 6);
+    ctx.closePath();
+    ctx.fill();
+
+    // Pijlpunt Y-as (Boven)
+    ctx.beginPath();
+    ctx.moveTo(centerX, 0);
+    ctx.lineTo(centerX - 6, 12);
+    ctx.lineTo(centerX + 6, 12);
+    ctx.closePath();
+    ctx.fill();
+
+    // 4. Labels & Getallen op de assen
+    ctx.fillStyle = isDarkMode ? '#cbd5e1' : '#475569';
+    ctx.font = 'bold 13px Inter, sans-serif';
+
+    // As-benamingen ('x' en 'y')
+    ctx.fillText('x', w - 15, centerY + 20);
+    ctx.fillText('y', centerX - 20, 15);
+
+    // Oorsprong '0'
+    ctx.font = '11px Inter, sans-serif';
+    ctx.fillText('0', centerX - 12, centerY + 15);
+
+    // Ticks en Getallen op de X-as
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 1.5;
+    ctx.textAlign = 'center';
+
+    for (let x = centerX + majorGridSize; x < w - 20; x += majorGridSize) {
+        const val = Math.round(x - centerX);
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - 4);
+        ctx.lineTo(x, centerY + 4);
+        ctx.stroke();
+        ctx.fillText(val.toString(), x, centerY + 18);
+    }
+    for (let x = centerX - majorGridSize; x > 20; x -= majorGridSize) {
+        const val = Math.round(x - centerX);
+        ctx.beginPath();
+        ctx.moveTo(x, centerY - 4);
+        ctx.lineTo(x, centerY + 4);
+        ctx.stroke();
+        ctx.fillText(val.toString(), x, centerY + 18);
+    }
+
+    // Ticks en Getallen op de Y-as
+    ctx.textAlign = 'right';
+    for (let y = centerY + majorGridSize; y < h - 20; y += majorGridSize) {
+        const val = Math.round(centerY - y);
+        ctx.beginPath();
+        ctx.moveTo(centerX - 4, y);
+        ctx.lineTo(centerX + 4, y);
+        ctx.stroke();
+        ctx.fillText(val.toString(), centerX - 8, y + 4);
+    }
+    for (let y = centerY - majorGridSize; y > 20; y -= majorGridSize) {
+        const val = Math.round(centerY - y);
+        ctx.beginPath();
+        ctx.moveTo(centerX - 4, y);
+        ctx.lineTo(centerX + 4, y);
+        ctx.stroke();
+        ctx.fillText(val.toString(), centerX - 8, y + 4);
+    }
+
+    ctx.restore();
+}
+
+/* Update de straal via schuifbalk OF getalleninvoer */
 function updateCompassRadius(val) {
-    compassRadius = parseFloat(val);
-    document.getElementById('radiusValDisplay').innerText = `${val} px`;
-    
+    let num = parseFloat(val);
+    if (isNaN(num) || num < 1) num = 1;
+    if (num > 600) num = 600;
+
+    compassRadius = num;
+
+    // Synchroniseer slider en number input
+    const rangeInput = document.getElementById('compassRadius');
+    const numInput = document.getElementById('compassRadiusInput');
+    if (rangeInput && rangeInput.value != compassRadius) rangeInput.value = compassRadius;
+    if (numInput && document.activeElement !== numInput) numInput.value = compassRadius;
+
+    // Herberekeningen
     const perimeter = (2 * Math.PI * compassRadius).toFixed(1);
     const area = (Math.PI * Math.pow(compassRadius, 2)).toFixed(1);
-    document.getElementById('calcPerimeter').innerText = `${perimeter} px`;
-    document.getElementById('calcArea').innerText = `${area} px²`;
+    
+    const calcPerim = document.getElementById('calcPerimeter');
+    if (calcPerim) calcPerim.innerText = `${perimeter} px`;
+    
+    const calcArea = document.getElementById('calcArea');
+    if (calcArea) calcArea.innerText = `${area} px²`;
 
     renderCompass();
 }
