@@ -10,6 +10,10 @@
     --accent-green-hover: #059669;
     --accent-green-light: #d1fae5;
 
+    --fiowis-purple: #7c69ef;
+    --fiowis-purple-light: #8b7cf8;
+    --fiowis-purple-hover: #6a55e6;
+
     --bg-page: #f8fafc;
     --bg-card: #ffffff;
     --bg-subtle: #f1f5f9;
@@ -45,6 +49,123 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* ==========================================
+   Fiowis Landingspagina (Chalkboard Hero)
+   ========================================== */
+.fiowis-landing {
+    background-color: #08080a;
+    color: #ffffff;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.fiowis-chalkboard-bg {
+    background-color: #08080a;
+    background-image:
+        radial-gradient(circle at 50% 48%, rgba(8, 8, 10, 0.52) 0%, rgba(8, 8, 10, 0.84) 75%, rgba(5, 5, 7, 0.96) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='600' viewBox='0 0 900 600'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.16' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ctext x='45' y='95' fill='%23ffffff' fill-opacity='0.18' stroke='none' font-family='Comic Sans MS, Chalkboard SE, cursive' font-size='34'%3Ec%C2%B2 = a%C2%B2 + b%C2%B2%3C/text%3E%3Ctext x='365' y='88' fill='%23ffffff' fill-opacity='0.17' stroke='none' font-family='Comic Sans MS, Chalkboard SE, cursive' font-size='32'%3E%CF%80 = 3.14%3C/text%3E%3Ctext x='685' y='95' fill='%23ffffff' fill-opacity='0.2' stroke='none' font-family='Comic Sans MS, Chalkboard SE, cursive' font-size='38'%3EE = mc%C2%B2%3C/text%3E%3Ctext x='635' y='315' fill='%23ffffff' fill-opacity='0.17' stroke='none' font-family='Comic Sans MS, Chalkboard SE, cursive' font-size='32'%3EZ%C2%B2 = Y%C2%B2 + 3%3C/text%3E%3Ctext x='535' y='415' fill='%23ffffff' fill-opacity='0.15' stroke='none' font-family='Comic Sans MS, Chalkboard SE, cursive' font-size='22'%3Ey(x) = cos(%C2%B7x)%3C/text%3E%3Ctext x='540' y='525' fill='%23ffffff' fill-opacity='0.18' stroke='none' font-family='Comic Sans MS, Chalkboard SE, cursive' font-size='40'%3EE = mc%C2%B2%3C/text%3E%3Ctext x='175' y='525' fill='%23ffffff' fill-opacity='0.18' stroke='none' font-family='Comic Sans MS, Chalkboard SE, cursive' font-size='42'%3E%CF%80%3C/text%3E%3Ctext x='60' y='555' fill='%23ffffff' fill-opacity='0.15' stroke='none' font-family='Comic Sans MS, Chalkboard SE, cursive' font-size='26'%3Ec%C2%B2 + a%C2%B2%3C/text%3E%3Cpath d='M30 345 L165 345 L165 415 L30 415 Z M30 415 L165 345'/%3E%3Cpath d='M430 165 L515 70 L515 165 Z'/%3E%3Cpath d='M735 335 L735 465 M665 400 L815 400'/%3E%3Cpath d='M731 343 L735 335 L739 343 M807 396 L815 400 L807 404'/%3E%3Cpath d='M695 435 Q735 395 785 355'/%3E%3Cpath d='M85 465 L145 465 M115 445 L115 485'/%3E%3Ccircle cx='215' cy='485' r='10'/%3E%3Cpath d='M35 485 L215 485' stroke-width='3'/%3E%3Cpath d='M425 485 L845 485' stroke-width='2.2'/%3E%3Cpath d='M255 155 Q295 110 335 155 T415 155'/%3E%3Cpath d='M580 185 C610 150, 650 220, 685 180'/%3E%3Cpath d='M195 235 L255 235 M225 215 L225 255'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: cover, 900px 600px;
+    background-position: center, center;
+}
+
+.fiowis-nav-link {
+    position: relative;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.35rem 0.15rem;
+    transition: color 0.2s ease;
+}
+
+.fiowis-nav-link:hover {
+    color: #ffffff;
+}
+
+.fiowis-nav-link.active {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.fiowis-nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 2px;
+    background-color: #ffffff;
+    border-radius: 9999px;
+}
+
+/* Custom Fiowis 'i' met paarse punt */
+.fiowis-dot-i {
+    position: relative;
+    display: inline-block;
+}
+
+.fiowis-dot-i::after {
+    content: "";
+    position: absolute;
+    top: 0.08em;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0.19em;
+    height: 0.19em;
+    border-radius: 9999px;
+    background-color: var(--fiowis-purple-light);
+}
+
+/* Glowing Paarse CTA Knop */
+.fiowis-cta-btn {
+    background: linear-gradient(135deg, #8373f5 0%, #725ee8 100%);
+    color: #ffffff;
+    border-radius: 9999px;
+    box-shadow: 0 0 28px rgba(124, 105, 239, 0.55), 0 8px 20px rgba(0, 0, 0, 0.45);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.fiowis-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 38px rgba(139, 124, 248, 0.8), 0 12px 24px rgba(0, 0, 0, 0.5);
+    filter: brightness(1.06);
+}
+
+.fiowis-cta-btn:active {
+    transform: translateY(0);
+}
+
+/* Scroll Indicator Pill onderaan Hero */
+.fiowis-scroll-pill {
+    width: 28px;
+    height: 46px;
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    animation: bounceSlow 2.4s infinite ease-in-out;
+}
+
+.fiowis-scroll-pill:hover {
+    border-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes bounceSlow {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(5px);
+    }
+}
+
+/* ==========================================
+   Bestaande App Styles
+   ========================================== */
 canvas, #threeContainer {
     touch-action: none;
     user-select: none;

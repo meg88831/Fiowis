@@ -341,7 +341,7 @@ function renderCompass() {
     ctx.save();
     ctx.scale(passerZoom, passerZoom);
 
-    drawCompassGrid(canvas);
+    drawCompassGrid(canvas, passerZoom);
     ctx.drawImage(drawnCanvas, 0, 0);
 
     const needleX = isAnchored ? anchorX : mouseX;
@@ -447,12 +447,12 @@ function drawCompassGraphic(ctx, nX, nY, pX, pY) {
     ctx.restore();
 }
 
-function drawCompassGrid(canvas) {
+function drawCompassGrid(canvas, zoom = 1.0) {
     const ctx = canvas.getContext('2d');
     if (!showGridAxis) return;
 
-    const w = canvas.width / passerZoom;
-    const h = canvas.height / passerZoom;
+    const w = canvas.width / zoom;
+    const h = canvas.height / zoom;
     const centerX = Math.floor(w / 2);
     const centerY = Math.floor(h / 2);
     const gridSize = CM_TO_PX / 2; // 0.5 cm
@@ -625,8 +625,10 @@ function updateThickness(val) {
 
 function toggleGridAxis() {
     showGridAxis = !showGridAxis;
-    document.getElementById('axisToggleText').innerText = `Assen: ${showGridAxis ? 'AAN' : 'UIT'}`;
+    const axisToggleText = document.getElementById('axisToggleText');
+    if (axisToggleText) axisToggleText.innerText = `Assen: ${showGridAxis ? 'AAN' : 'UIT'}`;
     renderCompass();
+    renderRulerScene();
 }
 
 function clearCompassCanvas() {
@@ -663,16 +665,24 @@ function initRulerCanvas() {
     canvas.width = width;
     canvas.height = height;
 
-    if (rulerDrawnCanvas.width !== width || rulerDrawnCanvas.height !== height) {
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = rulerDrawnCanvas.width;
-        tempCanvas.height = rulerDrawnCanvas.height;
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.drawImage(rulerDrawnCanvas, 0, 0);
+    // Buffer sized for 0.5x minimum zoom so outer areas remain drawable when zoomed out
+    const bufferWidth = width * 2;
+    const bufferHeight = height * 2;
 
-        rulerDrawnCanvas.width = width;
-        rulerDrawnCanvas.height = height;
-        rulerDrawnCtx.drawImage(tempCanvas, 0, 0);
+    if (rulerDrawnCanvas.width !== bufferWidth || rulerDrawnCanvas.height !== bufferHeight) {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = rulerDrawnCanvas.width || bufferWidth;
+        tempCanvas.height = rulerDrawnCanvas.height || bufferHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+        if (rulerDrawnCanvas.width > 0 && rulerDrawnCanvas.height > 0) {
+            tempCtx.drawImage(rulerDrawnCanvas, 0, 0);
+        }
+
+        rulerDrawnCanvas.width = bufferWidth;
+        rulerDrawnCanvas.height = bufferHeight;
+        if (tempCanvas.width > 0 && tempCanvas.height > 0) {
+            rulerDrawnCtx.drawImage(tempCanvas, 0, 0);
+        }
     }
 
     if (geoX === 300 && geoY === 250) {
@@ -688,6 +698,16 @@ function setupRulerEventListeners() {
     const canvas = document.getElementById('rulerCanvas');
     if (!canvas || canvas.dataset.rulerSetup) return;
     canvas.dataset.rulerSetup = 'true';
+
+    let initialPinchDistance = 0;
+    let initialPinchZoom = 1.0;
+    let isPinching = false;
+
+    function getTouchDistance(touch1, touch2) {
+        const dx = touch1.clientX - touch2.clientX;
+        const dy = touch1.clientY - touch2.clientY;
+        return Math.hypot(dx, dy);
+    }
 
     function getPos(e) {
         const rect = canvas.getBoundingClientRect();
@@ -795,9 +815,60 @@ function setupRulerEventListeners() {
     canvas.addEventListener('mouseup', handleUp);
     canvas.addEventListener('mouseleave', handleUp);
 
-    canvas.addEventListener('touchstart', (e) => { handleDown(e); e.preventDefault(); });
-    canvas.addEventListener('touchmove', (e) => { handleMove(e); e.preventDefault(); });
-    canvas.addEventListener('touchend', handleUp);
+    canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            isPinching = true;
+            isDraggingGeo = false;
+            isDrawingRuler = false;
+            rulerStartPos = null;
+            rulerCurrentPos = null;
+            freePoints = [];
+            initialPinchDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            initialPinchZoom = rulerZoom;
+            e.preventDefault();
+            renderRulerScene();
+            return;
+        }
+        if (e.touches.length === 1) {
+            isPinching = false;
+            handleDown(e);
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && isPinching) {
+            const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            if (initialPinchDistance > 0) {
+                const scale = currentDistance / initialPinchDistance;
+                rulerZoom = Math.min(Math.max(0.5, initialPinchZoom * scale), 2.5);
+                const zoomDisplay = document.getElementById('rulerZoomDisplay');
+                if (zoomDisplay) zoomDisplay.innerText = `${Math.round(rulerZoom * 100)}%`;
+                renderRulerScene();
+            }
+            e.preventDefault();
+            return;
+        }
+        if (e.touches.length === 1 && !isPinching) {
+            handleMove(e);
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+        if (isPinching) {
+            if (e.touches.length === 0) {
+                isPinching = false;
+            }
+            return;
+        }
+        handleUp();
+    });
+
+    canvas.addEventListener('touchcancel', () => {
+        isPinching = false;
+        handleUp();
+    });
 
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
@@ -827,7 +898,7 @@ function renderRulerScene() {
     ctx.save();
     ctx.scale(rulerZoom, rulerZoom);
 
-    drawCompassGrid(canvas);
+    drawCompassGrid(canvas, rulerZoom);
 
     ctx.drawImage(rulerDrawnCanvas, 0, 0);
 
@@ -1552,6 +1623,4 @@ window.addEventListener('resize', () => {
     if (currentTab === 'grafiek') drawFunction();
 });
 
-window.addEventListener('DOMContentLoaded', () => {
-    switchTab('home');
-});
+window.addEventListener
