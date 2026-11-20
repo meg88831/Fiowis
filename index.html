@@ -44,7 +44,7 @@
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col font-sans transition-colors duration-200">
 
     <!-- =====================================================================
-         LANDINGSPAGINA (Zoals Fiowis wiskunde-app landingspagina)
+         LANDINGSPAGINA
          ===================================================================== -->
     <div id="landingPage" class="fiowis-landing flex flex-col">
         
@@ -53,7 +53,6 @@
             
             <!-- Top Navigatiebalk -->
             <nav class="w-full border-b border-white/15 px-6 sm:px-10 lg:px-14 h-20 flex items-center justify-between">
-                <!-- Linksboven: Fiowis F Logo + Naam -->
                 <a href="#landingPage" class="flex items-center space-x-3 group">
                     <svg class="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M18 10H54L48 21H26L14 54H3L18 10Z" fill="#FFFFFF"/>
@@ -62,12 +61,11 @@
                     <span class="font-display font-bold text-xl tracking-tight text-white">Fiowis</span>
                 </a>
 
-                <!-- Rechtsboven: Links & Download knop -->
                 <div class="flex items-center space-x-5 sm:space-x-8">
                     <a href="#landingPage" class="fiowis-nav-link active hidden sm:inline-block">Home</a>
                     <a href="#landing-over-ons" class="fiowis-nav-link hidden sm:inline-block">Over ons</a>
                     <a href="#landing-features" class="fiowis-nav-link hidden sm:inline-block">Features</a>
-                    <button onclick="enterFiowisApp('home')" class="px-5 py-2 rounded-full border border-white/80 text-white text-xs sm:text-sm font-medium hover:bg-white hover:text-slate-950 transition">
+                    <button type="button" onclick="enterFiowisApp('home')" class="px-5 py-2 rounded-full border border-white/80 text-white text-xs sm:text-sm font-medium hover:bg-white hover:text-slate-950 transition cursor-pointer">
                         Download app
                     </button>
                 </div>
@@ -75,7 +73,6 @@
 
             <!-- Midden: Hoofdtitel, Tagline, Beschrijving & CTA -->
             <div class="flex-1 flex flex-col items-center justify-center text-center px-6 py-12">
-                <!-- Grote F Logo + Fiowis Woordmerk -->
                 <div class="flex items-center justify-center space-x-3 sm:space-x-5 mb-3">
                     <svg class="w-14 h-14 sm:w-20 sm:h-20" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M18 10H54L48 21H26L14 54H3L18 10Z" fill="#FFFFFF"/>
@@ -86,21 +83,19 @@
                     </h1>
                 </div>
 
-                <!-- Tagline -->
                 <p class="font-display font-bold text-2xl sm:text-4xl tracking-tight mt-1">
                     <span class="text-white">Slimmer leren.</span>
                     <span class="text-[#8172f8]"> Beter scoren.</span>
                 </p>
 
-                <!-- Subtitel -->
                 <p class="mt-4 max-w-lg text-sm sm:text-base text-slate-200/90 leading-relaxed font-normal">
                     De wiskunde app die jou helpt met oefenen, uitleg en<br class="hidden sm:inline">
                     slimme tools – speciaal voor jou.
                 </p>
 
                 <!-- Primaire Knop: Ga naar de app -->
-                <div class="mt-8">
-                    <button onclick="enterFiowisApp('home')" class="fiowis-cta-btn px-8 py-3.5 text-sm sm:text-base font-semibold inline-flex items-center space-x-3 cursor-pointer">
+                <div class="mt-8 relative z-20">
+                    <button id="enterAppBtn" type="button" onclick="enterFiowisApp('home')" class="fiowis-cta-btn px-8 py-3.5 text-sm sm:text-base font-semibold inline-flex items-center space-x-3 cursor-pointer">
                         <i class="fa-solid fa-arrow-right text-sm"></i>
                         <span>Ga naar de app</span>
                     </button>
@@ -115,11 +110,10 @@
             </div>
         </div>
 
-        <!-- Over ons & Features Sectie (bereikbaar via scrollen of navbar) -->
+        <!-- Over ons & Features Sectie -->
         <div id="landing-over-ons" class="bg-[#0d0d11] border-t border-white/10 py-16 px-6 sm:px-10 lg:px-14">
             <div class="max-w-6xl mx-auto space-y-14">
                 
-                <!-- Over ons blok -->
                 <div class="max-w-2xl mx-auto text-center space-y-3">
                     <span class="px-3 py-1 rounded-full bg-[#7c69ef]/15 border border-[#7c69ef]/40 text-[#9c8ff9] text-xs font-semibold uppercase tracking-wider">
                         Over Fiowis
@@ -132,7 +126,6 @@
                     </p>
                 </div>
 
-                <!-- Features Grid -->
                 <div id="landing-features" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     <div onclick="enterFiowisApp('passer')" class="bg-[#14141b] hover:bg-[#191923] border border-white/10 hover:border-[#7c69ef]/60 rounded-2xl p-6 cursor-pointer transition space-y-3 group">
                         <div class="w-11 h-11 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
@@ -168,7 +161,7 @@
                 </div>
 
                 <div class="text-center pt-2">
-                    <button onclick="enterFiowisApp('home')" class="fiowis-cta-btn px-7 py-3 text-sm font-semibold inline-flex items-center space-x-2.5 cursor-pointer">
+                    <button type="button" onclick="enterFiowisApp('home')" class="fiowis-cta-btn px-7 py-3 text-sm font-semibold inline-flex items-center space-x-2.5 cursor-pointer">
                         <i class="fa-solid fa-arrow-right text-xs"></i>
                         <span>Start direct in Fiowis</span>
                     </button>
@@ -178,7 +171,7 @@
     </div>
 
     <!-- =====================================================================
-         HOOFD APPLICATIE (Wordt geopend na klikken op "Ga naar de app")
+         HOOFD APPLICATIE
          ===================================================================== -->
     <div id="appShell" class="hidden flex-1 flex-col min-h-screen">
 
@@ -195,9 +188,9 @@
                     </div>
                 </div>
 
-                <!-- Top Header Controls (Landingspagina, Streak & Theme) -->
+                <!-- Top Header Controls -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
-                    <button onclick="showLandingPage()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-medium transition flex items-center space-x-1.5" title="Terug naar landingspagina">
+                    <button type="button" onclick="showLandingPage()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-medium transition flex items-center space-x-1.5 cursor-pointer" title="Terug naar landingspagina">
                         <i class="fa-solid fa-arrow-left"></i>
                         <span class="hidden sm:inline">Landingspagina</span>
                     </button>
@@ -207,154 +200,5 @@
                         <span id="streakCountText">2 Dagen Streak! 🔥</span>
                     </div>
 
-                    <button id="themeToggleBtn" onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition" title="Wissel Thema">
-                        <i id="themeIcon" class="fa-solid fa-moon text-base"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Scrollable Tab Navigation -->
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-100 dark:border-slate-700/50 flex space-x-1 sm:space-x-2 overflow-x-auto no-scrollbar text-xs sm:text-sm font-medium">
-                <button onclick="switchTab('home')" id="tab-home" class="tab-btn px-3 py-3 border-b-2 border-sky-600 text-sky-600 dark:text-sky-400 font-semibold flex items-center space-x-2 whitespace-nowrap">
-                    <i class="fa-solid fa-house"></i> <span>Home</span>
-                </button>
-                <button onclick="switchTab('passer')" id="tab-passer" class="tab-btn px-3 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
-                    <i class="fa-solid fa-compass"></i> <span>Passer & Assenstelsel</span>
-                </button>
-                <button onclick="switchTab('liniaal')" id="tab-liniaal" class="tab-btn px-3 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
-                    <i class="fa-solid fa-ruler-combined"></i> <span>Geodriehoek & Liniaal</span>
-                </button>
-                <button onclick="switchTab('3dshapes')" id="tab-3dshapes" class="tab-btn px-3 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
-                    <i class="fa-solid fa-cube text-indigo-500"></i> <span>3D Figuren</span>
-                </button>
-                <button onclick="switchTab('grafiek')" id="tab-grafiek" class="tab-btn px-3 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
-                    <i class="fa-solid fa-chart-line"></i> <span>Grafieken</span>
-                </button>
-                <button onclick="switchTab('vormen')" id="tab-vormen" class="tab-btn px-3 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
-                    <i class="fa-solid fa-shapes"></i> <span>Formules</span>
-                </button>
-                <button onclick="switchTab('game')" id="tab-game" class="tab-btn px-3 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
-                    <i class="fa-solid fa-gamepad text-emerald-500"></i> <span>Oefenspel</span>
-                </button>
-                <button onclick="switchTab('pomodoro')" id="tab-pomodoro" class="tab-btn px-3 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
-                    <i class="fa-solid fa-stopwatch text-amber-500"></i> <span>Pomodoro & Streak</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Container -->
-        <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-6">
-
-            <!-- Custom Modal -->
-            <div id="customModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700 text-center space-y-4">
-                    <div id="modalIcon" class="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto text-xl">
-                        <i class="fa-solid fa-circle-info"></i>
-                    </div>
-                    <h3 id="modalTitle" class="text-lg font-bold text-slate-900 dark:text-white">Melding</h3>
-                    <p id="modalMessage" class="text-sm text-slate-600 dark:text-slate-300"></p>
-                    <button onclick="closeModal()" class="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-medium transition shadow-sm">
-                        Begrepen
-                    </button>
-                </div>
-            </div>
-
-            <!-- Panel Home -->
-            <section id="panel-home" class="flex-1 flex flex-col space-y-6">
-                <div class="bg-gradient-to-r from-sky-600 via-teal-600 to-emerald-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
-                    <div class="relative z-10 max-w-2xl space-y-3">
-                        <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide uppercase">
-                            Welkom bij Fiowis
-                        </span>
-                        <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Jouw Interactieve Wiskunde Werkbank</h2>
-                        <p class="text-sky-100 text-xs sm:text-sm leading-relaxed">
-                            Gebruik de virtuele passer met assenstelsel, verken 3D figuren, oefen met het brugklas spel en bekijk overzichtelijke formules met rekenvoorbeelden!
-                        </p>
-                        <div class="pt-2 flex flex-wrap gap-3">
-                            <button onclick="switchTab('passer')" class="px-4 py-2.5 bg-white text-sky-700 hover:bg-sky-50 font-bold rounded-xl text-xs shadow-md transition flex items-center space-x-2">
-                                <i class="fa-solid fa-compass"></i> <span>Open Virtuele Passer</span>
-                            </button>
-                            <button onclick="switchTab('3dshapes')" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold rounded-xl text-xs backdrop-blur-md transition flex items-center space-x-2">
-                                <i class="fa-solid fa-cube"></i> <span>Bekijk 3D Figuren</span>
-                            </button>
-                            <button onclick="switchTab('game')" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center space-x-2">
-                                <i class="fa-solid fa-gamepad"></i> <span>Start Oefenspel</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Features Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div onclick="switchTab('passer')" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-sky-500 cursor-pointer transition space-y-2 group">
-                        <div class="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-                            <i class="fa-solid fa-compass"></i>
-                        </div>
-                        <h3 class="font-bold text-sm text-slate-900 dark:text-white">Passer & Assenstelsel</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Teken cirkels met exacte stralen (zoals 4.3 cm) op een raster met X- en Y-as.</p>
-                    </div>
-
-                    <div onclick="switchTab('liniaal')" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-amber-500 cursor-pointer transition space-y-2 group">
-                        <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-                            <i class="fa-solid fa-ruler-combined"></i>
-                        </div>
-                        <h3 class="font-bold text-sm text-slate-900 dark:text-white">Geodriehoek & Liniaal</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Draai, schaal en versleep de geodriehoek om nauwkeurige lijnen te trekken.</p>
-                    </div>
-
-                    <div onclick="switchTab('game')" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-emerald-500 cursor-pointer transition space-y-2 group">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-                            <i class="fa-solid fa-gamepad"></i>
-                        </div>
-                        <h3 class="font-bold text-sm text-slate-900 dark:text-white">Brugklas Oefenspel</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Oefen met lineaire vergelijkingen en stappenplannen voor klas 1 VO.</p>
-                    </div>
-
-                    <div onclick="switchTab('vormen')" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-purple-500 cursor-pointer transition space-y-2 group">
-                        <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-                            <i class="fa-solid fa-shapes"></i>
-                        </div>
-                        <h3 class="font-bold text-sm text-slate-900 dark:text-white">Formules & Voorbeelden</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Helder overzicht van wiskundige formules voor klas 1 met getallenvoorbeelden.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Panel Passer -->
-            <section id="panel-passer" class="hidden flex-1 flex-col lg:flex-row gap-6">
-                <div class="flex-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative min-h-[480px]">
-                    <div class="p-3 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
-                        <div class="flex items-center space-x-2">
-                            <span id="passerStatusBadge" class="inline-flex items-center px-2.5 py-1 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-semibold">
-                                <i class="fa-solid fa-hand-pointer mr-1.5"></i> Klik op het canvas om de passer te verankeren!
-                            </span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg p-0.5 space-x-1">
-                                <button onclick="changePasserZoom(-0.1)" class="px-2 py-1 hover:bg-white dark:hover:bg-slate-600 rounded font-bold text-slate-700 dark:text-slate-200" title="Uitzoomen"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-                                <span id="passerZoomDisplay" class="px-1.5 font-mono font-semibold text-slate-700 dark:text-slate-200">100%</span>
-                                <button onclick="changePasserZoom(0.1)" class="px-2 py-1 hover:bg-white dark:hover:bg-slate-600 rounded font-bold text-slate-700 dark:text-slate-200" title="Inzoomen"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-                                <button onclick="resetPasserZoom()" class="px-2 py-1 hover:bg-white dark:hover:bg-slate-600 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200" title="Reset Zoom"><i class="fa-solid fa-rotate-left"></i></button>
-                            </div>
-                            <button onclick="unanchorCompass()" id="unanchorBtn" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition flex items-center space-x-1 shadow-sm hidden">
-                                <i class="fa-solid fa-location-crosshairs"></i> <span>Verplaats Passer</span>
-                            </button>
-                            <button onclick="toggleGridAxis()" id="gridAxisToggleBtn" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg font-medium transition flex items-center space-x-1">
-                                <i class="fa-solid fa-border-all"></i> <span id="axisToggleText">Assen: AAN</span>
-                            </button>
-                            <button onclick="clearCompassCanvas()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-lg font-medium transition flex items-center space-x-1">
-                                <i class="fa-solid fa-trash-can"></i> <span>Wis Canvas</span>
-                            </button>
-                            <button onclick="autoDrawFullCircle()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition flex items-center space-x-1 shadow-sm">
-                                <i class="fa-solid fa-circle-notch"></i> <span>Teken Cirkel</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="flex-1 relative w-full h-full bg-slate-50/50 dark:bg-slate-900/50 overflow-hidden" id="canvasContainer">
-                        <canvas id="compassCanvas" class="w-full h-full absolute inset-0"></canvas>
-                    </div>
-                </div>
-
-                <!-- Controls Panel -->
-                <div class="w-full lg:w-80 bg-white dark:bg-slate-800 rounded-2xl border border-slate
+                    <button type="button" id="themeToggleBtn" onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition" title="Wissel Thema">
+                        <i id="themeIcon" class="fa-solid

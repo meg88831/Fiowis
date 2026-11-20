@@ -46,6 +46,60 @@ let rulerDrawnCanvas = document.createElement('canvas');
 let rulerDrawnCtx = rulerDrawnCanvas.getContext('2d');
 
 /* ==========================================
+   Landing Page <-> App Navigation
+   ========================================== */
+function enterFiowisApp(targetTab = 'home') {
+    const landing = document.getElementById('landingPage');
+    const appShell = document.getElementById('appShell');
+
+    if (landing) {
+        landing.classList.add('hidden');
+        landing.style.display = 'none';
+    }
+
+    if (appShell) {
+        appShell.classList.remove('hidden');
+        appShell.classList.add('flex');
+        appShell.style.display = 'flex';
+    }
+
+    window.scrollTo(0, 0);
+
+    try {
+        history.replaceState(null, '', '#app');
+    } catch (e) {}
+
+    requestAnimationFrame(() => {
+        switchTab(targetTab || 'home');
+    });
+}
+
+function showLandingPage() {
+    const landing = document.getElementById('landingPage');
+    const appShell = document.getElementById('appShell');
+
+    if (appShell) {
+        appShell.classList.add('hidden');
+        appShell.classList.remove('flex');
+        appShell.style.display = 'none';
+    }
+
+    if (landing) {
+        landing.classList.remove('hidden');
+        landing.style.display = 'flex';
+    }
+
+    window.scrollTo(0, 0);
+
+    try {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+    } catch (e) {}
+}
+
+window.enterFiowisApp = enterFiowisApp;
+window.showLandingPage = showLandingPage;
+
+/* ==========================================
    Tab Navigation & Theme
    ========================================== */
 function switchTab(tabId) {
@@ -658,14 +712,14 @@ function initRulerCanvas() {
     const canvas = document.getElementById('rulerCanvas');
     if (!canvas) return;
     const container = document.getElementById('rulerCanvasContainer');
+    if (!container) return;
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 500;
 
     canvas.width = width;
     canvas.height = height;
 
-    // Buffer sized for 0.5x minimum zoom so outer areas remain drawable when zoomed out
     const bufferWidth = width * 2;
     const bufferHeight = height * 2;
 
@@ -1089,14 +1143,12 @@ function init3DScene() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // OrbitControls for touch & mouse rotation/zoom/pan
     if (typeof THREE.OrbitControls !== 'undefined') {
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
     }
 
-    // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
@@ -1108,7 +1160,6 @@ function init3DScene() {
     dirLight2.position.set(-10, -10, -10);
     scene.add(dirLight2);
 
-    // Grid Floor
     const gridHelper = new THREE.GridHelper(20, 20, 0x0284c7, 0x334155);
     gridHelper.position.y = 0;
     scene.add(gridHelper);
@@ -1140,8 +1191,8 @@ function update3DShape() {
     }
 
     const shapeType = document.getElementById('shape3DSelect')?.value || 'cube';
-    const p1 = parseFloat(document.getElementById('param1Slider')?.value || 4); // Radius / Width
-    const p2 = parseFloat(document.getElementById('param2Slider')?.value || 4); // Height
+    const p1 = parseFloat(document.getElementById('param1Slider')?.value || 4);
+    const p2 = parseFloat(document.getElementById('param2Slider')?.value || 4);
 
     const p1Label = document.getElementById('param1Label');
     if (p1Label) {
@@ -1162,8 +1213,8 @@ function update3DShape() {
     let volume = 0;
     let surfaceArea = 0;
 
-    const r = p1 / 2; // radius
-    const h = p2;     // height
+    const r = p1 / 2;
+    const h = p2;
 
     switch (shapeType) {
         case 'cylinder':
@@ -1253,8 +1304,8 @@ function drawFunction() {
     const canvas = document.getElementById('graphCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
+    canvas.width = canvas.parentElement.clientWidth || 600;
+    canvas.height = canvas.parentElement.clientHeight || 450;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1623,4 +1674,18 @@ window.addEventListener('resize', () => {
     if (currentTab === 'grafiek') drawFunction();
 });
 
-window.addEventListener
+window.addEventListener('DOMContentLoaded', () => {
+    const enterBtn = document.getElementById('enterAppBtn');
+    if (enterBtn) {
+        enterBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            enterFiowisApp('home');
+        });
+    }
+
+    if (window.location.hash === '#app') {
+        enterFiowisApp('home');
+    } else {
+        switchTab('home');
+    }
+});
