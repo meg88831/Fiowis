@@ -49,6 +49,7 @@ let rulerDrawnCtx = rulerDrawnCanvas.getContext('2d');
    Landing Page <-> App Navigation
    ========================================== */
 function enterFiowisApp(targetTab = 'home') {
+    console.log('enterFiowisApp wordt geladen')
     const landing = document.getElementById('landingPage');
     const appShell = document.getElementById('appShell');
 
